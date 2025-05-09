@@ -10,6 +10,9 @@ FPS = 60
 GRAVITY = 0.5
 JUMP_STRENGTH = 12
 PLAYER_SPEED = 5
+NUM_LEVELS = 3
+current_level = 1
+VICTORY = 4 #temporary
 
 # colors
 WHITE = (255, 255, 255)
@@ -139,6 +142,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = 0
         elif self.rect.right < 0:
             self.rect.left = WIDTH
+        hits = pygame.sprite.spritecollide(self, teleporters, False)
+        if hits:
+            create_game_objects(hits[0].target_level)
 
     def jump(self):
         if self.on_ground:
@@ -160,37 +166,63 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class Teleporter(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, target_level):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.target_level = target_level
 
-def create_game_objects():
-    global all_sprites, platforms, player
 
-    # sprites
+def create_game_objects(level=1):
+    global all_sprites, platforms, player, teleporters, current_level
+    
+    current_level = level  # Store current level
+    
+    # Clear existing sprites
     all_sprites = pygame.sprite.Group()
     platforms = pygame.sprite.Group()
+    teleporters = pygame.sprite.Group()
 
-    # player entity
+    # Create player
     player = Player(WIDTH // 2, HEIGHT // 2)
     all_sprites.add(player)
 
-    # platforms for debug
-    platform_positions = [
-        (100, 150, 200, 20),
-        (500, 150, 200, 20),
-        (300, 300, 200, 20),
-        (100, 450, 200, 20),
-        (500, 450, 200, 20),
-
-        (0, 250, 100, 20),
-        (WIDTH - 100, 250, 100, 20),
-        (350, 0, 100, 20),
-        (350, HEIGHT - 20, 100, 20)
-    ]
-
-    for x, y, w, h in platform_positions:
-        p = Platform(x, y, w, h)
-        platforms.add(p)
-        all_sprites.add(p)
-
+    # Load level data
+    filename = f'levels/level{level}.txt'
+    try:
+        with open(filename, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    parts = line.split(',')
+                    obj_type = parts[0]
+                    
+                    if obj_type == 'platform':
+                        x, y, w, h = map(int, parts[1:5])
+                        p = Platform(x, y, w, h)
+                        platforms.add(p)
+                        all_sprites.add(p)
+                        
+                    elif obj_type == 'teleport':
+                        x, y, w, h, target = map(int, parts[1:6])
+                        t = Teleporter(x, y, w, h, target)
+                        teleporters.add(t)
+                        all_sprites.add(t)
+                        
+    except FileNotFoundError:
+        if level > current_level:  # Only show victory if progressing forward
+            current_state = VICTORY
+            return
+        else:
+            # Handle fallback for missing level files
+            print(f"Level {level} not found!")
+            current_level = 1
+            create_game_objects(1)
+        
 
 def draw_menu():
     screen.fill(MENU_BG)
@@ -217,6 +249,7 @@ def draw_game():
     screen.blit(text_surface, (10, 10))
 
     instructions = [
+        f"Level: {current_level}",
         "Space: Jump",
         "G: Flip Gravity",
         "R: Reset Position",
@@ -229,6 +262,18 @@ def draw_game():
 
     pygame.display.flip()
 
+def draw_victory():
+    screen.fill(MENU_BG)
+    
+    title_surf, title_rect = font_large.render("CONGRATULATIONS!", GREEN)
+    title_rect.center = (WIDTH // 2, HEIGHT // 2 - 50)
+    screen.blit(title_surf, title_rect)
+    
+    sub_surf, sub_rect = font_medium.render("You've completed all levels!", WHITE)
+    sub_rect.center = (WIDTH // 2, HEIGHT // 2 + 50)
+    screen.blit(sub_surf, sub_rect)
+    
+    pygame.display.flip()
 
 def draw_pause_menu():
     # overlay
@@ -294,6 +339,15 @@ pause_buttons = [
     Button(WIDTH // 2 - 150, HEIGHT // 2 + 80, 300, 60, "Main Menu", return_to_menu)
 ]
 
+def set_state(new_state):
+    global current_state
+    current_state = new_state
+
+def start_game(level=1):
+    create_game_objects(level)
+    set_state(GAME)
+
+
 # main game loop
 running = True
 while running:
@@ -353,6 +407,8 @@ while running:
             button.draw(screen)
 
         pygame.display.flip()
+    elif current_state == VICTORY:
+        draw_victory()
 
     clock.tick(FPS)
 

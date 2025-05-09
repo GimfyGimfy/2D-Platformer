@@ -1,0 +1,10 @@
+platform,100,150,200,20
+platform,500,150,200,20
+platform,300,300,200,20
+platform,100,450,200,20
+platform,500,450,200,20
+platform,0,250,100,20
+platform,700,250,100,20
+platform,350,0,100,20
+platform,350,580,100,20
+teleport,350,500,50,50,2
