@@ -169,10 +169,10 @@ class Player(pygame.sprite.Sprite):
             
         # orb collision
         hits_orb = pygame.sprite.spritecollide(self, orbs, False)
-        if hits_orb:
-            self.charged = True
-            self.image.fill(PLAYER_COLOR)
-            
+        for orb in hits:
+            if orb.active:
+                self.charged = True
+                self.image.fill(PLAYER_COLOR)
 
     def jump(self):
         if self.on_ground:
@@ -215,12 +215,23 @@ class Sign(pygame.sprite.Sprite):
 class Orb(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(WHITE)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.active_image = pygame.Surface((20,20), pygame.SRCALPHA)
+        pygame.draw.circle(self.active_image, (0,255,255), (10,10),10)
+        self.inactive_image = pygame.Surface((20,20), pygame.SRCALPHA)
+        pygame.draw.circle(self.inactive_image, (100,100,100), (10,10),10)
+        self.image = self.active_image
+        self.rect = self.image.get_rect(center=(x,y))
         self.active =  True
+        self.respawn_time=0
+    def deactivate(self):
+        if self.active:
+            self.active=False
+            self.image=self.inactive_image
+            self.respawn_time=pygame.time.get_ticks()+5000 #5 seconds
+    def update(self):
+        if not self.active and pygame.time.get_ticks() > self.respawn_time:
+            self.active = True
+            self.image=self.active_image
 
 class Teleporter(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, target_level):
@@ -494,7 +505,14 @@ while running:
     if current_state == MENU:
         draw_menu()
     elif current_state == GAME:
+        for sprite in all_sprites:
+            if not isinstance(sprite, Player):
+                sprite.update()
         player.update(platforms)
+        hits = pygame.sprite.spritecollide(player, orbs, False)
+        for orb in hits:
+            if orb.active:
+                orb.deactivate()
         draw_game()
     elif current_state == PAUSED:
         screen.fill(BLACK)
