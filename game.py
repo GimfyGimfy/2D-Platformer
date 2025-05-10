@@ -22,8 +22,9 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+PLAYER_COLOR = GREEN
 PLATFORM_COLOR = (100, 100, 100)
-SPIKE_COLOR = (255, 0, 0)
+SPIKE_COLOR = RED
 MENU_BG = (30, 30, 50)
 BUTTON_COLOR = (70, 70, 90)
 BUTTON_HOVER = (100, 100, 120)
@@ -77,7 +78,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.image = pygame.Surface((30, 50))
-        self.image.fill((0, 255, 0))  # GREEN
+        self.image.fill(PLAYER_COLOR)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -89,16 +90,19 @@ class Player(pygame.sprite.Sprite):
         self.is_sprinting = False
 
     def update(self, platforms):
+        # handle horizontal movement
         dx = 0
         keys = pygame.key.get_pressed()
         self.is_sprinting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
         
         if self.is_sprinting:
+            # accelerate to sprint speed
             if self.current_speed < SPRINT_SPEED:
                 self.current_speed += SPRINT_ACCELERATION
         else:
+            # decelerate to normal speed
             if self.current_speed > PLAYER_SPEED:
-                self.current_speed -= SPRINT_ACCELERATION * 1.2
+                self.current_speed -= SPRINT_ACCELERATION * 1.2  # faster deceleration
 
         self.current_speed = max(PLAYER_SPEED, min(self.current_speed, SPRINT_SPEED))
         
@@ -107,16 +111,17 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             dx += self.current_speed
         
-        # horizontal movement and collision
         self.rect.x += dx
+
+        # check horizontal collisions
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                if dx > 0:
+                if dx > 0:  # moving right
                     self.rect.right = platform.rect.left
-                elif dx < 0:
+                elif dx < 0:  # moving left
                     self.rect.left = platform.rect.right
 
-        # vertical movement
+         # vertical movement
         self.velocity_y += GRAVITY * self.gravity_direction
         dy = self.velocity_y
         step = int(abs(dy)) + 1
@@ -133,6 +138,7 @@ class Player(pygame.sprite.Sprite):
                             self.velocity_y = 0
                             self.on_ground = True
                             self.charged = True
+                            self.image.fill(PLAYER_COLOR)
                         elif step_direction < 0:
                             self.rect.top = platform.rect.bottom
                             self.velocity_y = 0
@@ -142,20 +148,31 @@ class Player(pygame.sprite.Sprite):
                             self.velocity_y = 0
                             self.on_ground = True
                             self.charged = True
+                            self.image.fill(PLAYER_COLOR)
                         elif step_direction > 0:
                             self.rect.bottom = platform.rect.top
                             self.velocity_y = 0
                     break  # stop checking after a collision
-                
+
+        # platform collision
         hits = pygame.sprite.spritecollide(self, teleporters, False)
         if hits:
             create_game_objects(hits[0].target_level)
+            
+        # spike collision
         hits_spike = pygame.sprite.spritecollide(self, spikes, False)
         if hits_spike:
             player.gravity_direction = 1
             player.rect.x = WIDTH // 2
             player.rect.y = HEIGHT // 2 - 30
             player.velocity_y = 0
+            
+        # orb collision
+        hits_orb = pygame.sprite.spritecollide(self, orbs, False)
+        if hits_orb:
+            self.charged = True
+            self.image.fill(PLAYER_COLOR)
+            
 
     def jump(self):
         if self.on_ground:
@@ -166,6 +183,7 @@ class Player(pygame.sprite.Sprite):
             self.gravity_direction *= -1
             self.velocity_y = 0
             self.charged = False
+            self.image.fill(WHITE)
 
 
 class Platform(pygame.sprite.Sprite):
@@ -194,6 +212,15 @@ class Sign(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x,y))
         self.message = message
 
+class Orb(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((30, 30))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.active =  True
 
 class Teleporter(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, target_level):
@@ -207,7 +234,7 @@ class Teleporter(pygame.sprite.Sprite):
 
 
 def create_game_objects(level=1):
-    global all_sprites, platforms, spikes, signs, player, teleporters, current_level
+    global all_sprites, platforms, spikes, signs, orbs, player, teleporters, current_level
     
     current_level = level  # Store current level
     
@@ -217,6 +244,7 @@ def create_game_objects(level=1):
     spikes = pygame.sprite.Group()
     teleporters = pygame.sprite.Group()
     signs = pygame.sprite.Group()
+    orbs = pygame.sprite.Group()
     
     # Create player
     player = Player(WIDTH // 2, HEIGHT // 2)
@@ -249,6 +277,7 @@ def create_game_objects(level=1):
                         t = Teleporter(x, y, w, h, target)
                         teleporters.add(t)
                         all_sprites.add(t)
+                        
                     elif obj_type == 'sign':
                         x_grid, y_grid = map(int, parts[1:3])
                         message = ','.join(parts[3:])  #join remaining parts as message
@@ -257,6 +286,12 @@ def create_game_objects(level=1):
                         sign = Sign(x, y, message)
                         signs.add(sign)
                         all_sprites.add(sign)
+
+                    elif obj_type == 'orb':
+                        x, y = map(int, parts[1:3])
+                        o = Orb(x*30+400, -y*30+300)
+                        orbs.add(o)
+                        all_sprites.add(o)
                         
     except FileNotFoundError:
         if level > current_level:  # Only show victory if progressing forward
@@ -324,11 +359,10 @@ def draw_game():
         f"Level: {current_level}",
         "Space: Jump",
         "Shift: Sprint",
-        "G: Flip Gravity",
+        "F: Flip Gravity",
         "R: Reset Position",
         "ESC: Pause Game",
-        "Charge: " + str(player.charged),
-        "Velocity" + str(player.velocity_y)
+        "Charge: " + str(player.charged)
     ]
     for i, instruction in enumerate(instructions):
         instr_text, instr_rect = font_small.render(instruction, WHITE)
