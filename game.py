@@ -10,6 +10,8 @@ FPS = 60
 GRAVITY = 0.5
 JUMP_STRENGTH = 12
 PLAYER_SPEED = 5
+SPRINT_SPEED = 8
+SPRINT_ACCELERATION = 1.2
 NUM_LEVELS = 3
 current_level = 1
 VICTORY = 4 #temporary
@@ -75,7 +77,7 @@ class Button:
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((30, 30))
+        self.image = pygame.Surface((30, 50))
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -84,16 +86,31 @@ class Player(pygame.sprite.Sprite):
         self.gravity_direction = 1  # 1 for down, -1 for up
         self.on_ground = False
         self.charged = True
+        self.current_speed = PLAYER_SPEED
+        self.is_sprinting = False
 
     def update(self, platforms):
         # handle horizontal movement
         dx = 0
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            dx -= PLAYER_SPEED
-        if keys[pygame.K_RIGHT]:
-            dx += PLAYER_SPEED
+        self.is_sprinting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
+        
+        if self.is_sprinting:
+            # accelerate to sprint speed
+            if self.current_speed < SPRINT_SPEED:
+                self.current_speed += SPRINT_ACCELERATION
+        else:
+            # decelerate to normal speed
+            if self.current_speed > PLAYER_SPEED:
+                self.current_speed -= SPRINT_ACCELERATION * 1.2  # faster deceleration
 
+        self.current_speed = max(PLAYER_SPEED, min(self.current_speed, SPRINT_SPEED))
+        
+        if keys[pygame.K_LEFT]:
+            dx -= self.current_speed
+        if keys[pygame.K_RIGHT]:
+            dx += self.current_speed
+        
         self.rect.x += dx
 
         # check horizontal collisions
