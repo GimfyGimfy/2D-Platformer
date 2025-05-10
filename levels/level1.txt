@@ -8,3 +8,4 @@ platform,700,250,100,20
 platform,350,0,100,20
 platform,350,580,100,20
 teleport,350,500,50,50,2
+spike,100,170

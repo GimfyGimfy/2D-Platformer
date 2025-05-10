@@ -264,7 +264,14 @@ def draw_menu():
 
 def draw_game():
     screen.fill(BLACK)
-    all_sprites.draw(screen)
+    
+    #calculate camera offset
+    camera_x = player.rect.centerx - WIDTH //2
+    camera_y = player.rect.centery - HEIGHT // 2
+    
+    #draw all sprites but include camera offset
+    for sprite in all_sprites:
+        screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y - camera_y))
 
     # info
     gravity_text = "Gravity: DOWN" if player.gravity_direction == 1 else "Gravity: UP"
