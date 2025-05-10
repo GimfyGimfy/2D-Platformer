@@ -76,7 +76,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.image = pygame.Surface((30, 30))
-        self.image.fill(RED)
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -131,8 +131,15 @@ class Player(pygame.sprite.Sprite):
                     elif dy > 0:  # moving down (with reversed gravity)
                         self.rect.bottom = platform.rect.top
                         self.velocity_y = 0
-
-
+        hits = pygame.sprite.spritecollide(self, teleporters, False)
+        if hits:
+            create_game_objects(hits[0].target_level)
+        hits_spike = pygame.sprite.spritecollide(self, spikes, False)
+        if hits_spike:
+            player.gravity_direction = 1
+            player.rect.x = WIDTH // 2
+            player.rect.y = HEIGHT // 2 - 30
+            player.velocity_y = 0
 
     def jump(self):
         if self.on_ground:
@@ -157,7 +164,7 @@ class Platform(pygame.sprite.Sprite):
 class Spike(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((20, 20))
+        self.image = pygame.Surface((30, 30))
         self.image.fill(SPIKE_COLOR)
         self.rect = self.image.get_rect()
         self.rect.x = x
