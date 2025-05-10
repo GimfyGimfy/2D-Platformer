@@ -21,6 +21,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 PLATFORM_COLOR = (100, 100, 100)
+SPIKE_COLOR = (255, 0, 0)
 MENU_BG = (30, 30, 50)
 BUTTON_COLOR = (70, 70, 90)
 BUTTON_HOVER = (100, 100, 120)
@@ -145,6 +146,12 @@ class Player(pygame.sprite.Sprite):
         hits = pygame.sprite.spritecollide(self, teleporters, False)
         if hits:
             create_game_objects(hits[0].target_level)
+        hits_spike = pygame.sprite.spritecollide(self, spikes, False)
+        if hits_spike:
+            player.gravity_direction = 1
+            player.rect.x = WIDTH // 2
+            player.rect.y = HEIGHT // 2 - 30
+            player.velocity_y = 0
 
     def jump(self):
         if self.on_ground:
@@ -166,6 +173,15 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class Spike(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((20, 20))
+        self.image.fill(SPIKE_COLOR)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 class Teleporter(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, target_level):
         super().__init__()
@@ -178,13 +194,14 @@ class Teleporter(pygame.sprite.Sprite):
 
 
 def create_game_objects(level=1):
-    global all_sprites, platforms, player, teleporters, current_level
+    global all_sprites, platforms, spikes, player, teleporters, current_level
     
     current_level = level  # Store current level
     
     # Clear existing sprites
     all_sprites = pygame.sprite.Group()
     platforms = pygame.sprite.Group()
+    spikes = pygame.sprite.Group()
     teleporters = pygame.sprite.Group()
 
     # Create player
@@ -206,6 +223,12 @@ def create_game_objects(level=1):
                         p = Platform(x, y, w, h)
                         platforms.add(p)
                         all_sprites.add(p)
+
+                    elif obj_type == 'spike':
+                        x, y = map(int, parts[1:3])
+                        s = Spike(x, y)
+                        spikes.add(s)
+                        all_sprites.add(s)
                         
                     elif obj_type == 'teleport':
                         x, y, w, h, target = map(int, parts[1:6])
@@ -369,7 +392,7 @@ while running:
                     player.flip_gravity()
                 if event.key == pygame.K_r:  # reset position
                     player.rect.x = WIDTH // 2
-                    player.rect.y = HEIGHT // 2
+                    player.rect.y = HEIGHT // 2 - 30
                     player.velocity_y = 0
                 if event.key == pygame.K_ESCAPE:  # toggle pause
                     toggle_pause()
