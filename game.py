@@ -88,8 +88,12 @@ class Player(pygame.sprite.Sprite):
         self.charged = True
         self.current_speed = PLAYER_SPEED
         self.is_sprinting = False
+        self.reset_cooldown = 0
 
     def update(self, platforms):
+        if self.reset_cooldown > 0:
+            self.reset_cooldown -= 1
+            return
         # handle horizontal movement
         dx = 0
         keys = pygame.key.get_pressed()
@@ -162,10 +166,7 @@ class Player(pygame.sprite.Sprite):
         # spike collision
         hits_spike = pygame.sprite.spritecollide(self, spikes, False)
         if hits_spike:
-            player.gravity_direction = 1
-            player.rect.x = WIDTH // 2
-            player.rect.y = HEIGHT // 2 - 30
-            player.velocity_y = 0
+            player.reset_position()
             
         # orb collision
         hits_orb = pygame.sprite.spritecollide(self, orbs, False)
@@ -184,7 +185,12 @@ class Player(pygame.sprite.Sprite):
             self.velocity_y = 0
             self.charged = False
             self.image.fill(WHITE)
-
+    def reset_position(self):
+        self.rect.x = WIDTH // 2
+        self.rect.y = HEIGHT // 2 - 30
+        self.velocity_y = 0
+        self.gravity_direction = 1
+        self.reset_cooldown = 2
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -494,10 +500,7 @@ while running:
                 if event.key == pygame.K_SPACE:
                     player.jump()
                 if event.key == pygame.K_r:  # reset position
-                    player.rect.x = WIDTH // 2
-                    player.rect.y = HEIGHT // 2 - 30
-                    player.velocity_y = 0
-                    player.gravity_direction=1
+                    player.reset_position()
                 if event.key == pygame.K_ESCAPE:  # toggle pause
                     toggle_pause()
         elif current_state == PAUSED:
