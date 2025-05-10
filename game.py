@@ -73,12 +73,11 @@ class Button:
                 return self.action()
         return None
 
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.image = pygame.Surface((30, 50))
-        self.image.fill(GREEN)
+        self.image.fill((0, 255, 0))  # GREEN
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -90,19 +89,16 @@ class Player(pygame.sprite.Sprite):
         self.is_sprinting = False
 
     def update(self, platforms):
-        # handle horizontal movement
         dx = 0
         keys = pygame.key.get_pressed()
         self.is_sprinting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
         
         if self.is_sprinting:
-            # accelerate to sprint speed
             if self.current_speed < SPRINT_SPEED:
                 self.current_speed += SPRINT_ACCELERATION
         else:
-            # decelerate to normal speed
             if self.current_speed > PLAYER_SPEED:
-                self.current_speed -= SPRINT_ACCELERATION * 1.2  # faster deceleration
+                self.current_speed -= SPRINT_ACCELERATION * 1.2
 
         self.current_speed = max(PLAYER_SPEED, min(self.current_speed, SPRINT_SPEED))
         
@@ -111,43 +107,46 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             dx += self.current_speed
         
+        # horizontal movement and collision
         self.rect.x += dx
-
-        # check horizontal collisions
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                if dx > 0:  # moving right
+                if dx > 0:
                     self.rect.right = platform.rect.left
-                elif dx < 0:  # moving left
+                elif dx < 0:
                     self.rect.left = platform.rect.right
 
-        # handle vertical movement
+        # vertical movement
         self.velocity_y += GRAVITY * self.gravity_direction
         dy = self.velocity_y
-        self.rect.y += dy
+        step = int(abs(dy)) + 1
+        step_direction = int(dy / abs(dy)) if dy != 0 else 0
 
-        # check vertical collisions
         self.on_ground = False
-        for platform in platforms:
-            if self.rect.colliderect(platform.rect):
-                if self.gravity_direction == 1:  # normal gravity (down)
-                    if dy > 0:  # moving down
-                        self.rect.bottom = platform.rect.top
-                        self.velocity_y = 0
-                        self.on_ground = True
-                        self.charged = True
-                    elif dy < 0:  # moving up
-                        self.rect.top = platform.rect.bottom
-                        self.velocity_y = 0
-                else:  # reversed gravity (up)
-                    if dy < 0:  # moving up (against reversed gravity)
-                        self.rect.top = platform.rect.bottom
-                        self.velocity_y = 0
-                        self.on_ground = True
-                        self.charged = True
-                    elif dy > 0:  # moving down (with reversed gravity)
-                        self.rect.bottom = platform.rect.top
-                        self.velocity_y = 0
+        for i in range(step):
+            self.rect.y += step_direction
+            for platform in platforms:
+                if self.rect.colliderect(platform.rect):
+                    if self.gravity_direction == 1:  # gravity down
+                        if step_direction > 0:
+                            self.rect.bottom = platform.rect.top
+                            self.velocity_y = 0
+                            self.on_ground = True
+                            self.charged = True
+                        elif step_direction < 0:
+                            self.rect.top = platform.rect.bottom
+                            self.velocity_y = 0
+                    else:  # gravity up
+                        if step_direction < 0:
+                            self.rect.top = platform.rect.bottom
+                            self.velocity_y = 0
+                            self.on_ground = True
+                            self.charged = True
+                        elif step_direction > 0:
+                            self.rect.bottom = platform.rect.top
+                            self.velocity_y = 0
+                    break  # stop checking after a collision
+                
         hits = pygame.sprite.spritecollide(self, teleporters, False)
         if hits:
             create_game_objects(hits[0].target_level)
@@ -328,7 +327,8 @@ def draw_game():
         "G: Flip Gravity",
         "R: Reset Position",
         "ESC: Pause Game",
-        "Charge: " + str(player.charged)
+        "Charge: " + str(player.charged),
+        "Velocity" + str(player.velocity_y)
     ]
     for i, instruction in enumerate(instructions):
         instr_text, instr_rect = font_small.render(instruction, WHITE)
