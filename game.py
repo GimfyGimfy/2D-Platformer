@@ -106,9 +106,9 @@ class Player(pygame.sprite.Sprite):
 
         self.current_speed = max(PLAYER_SPEED, min(self.current_speed, SPRINT_SPEED))
         
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             dx -= self.current_speed
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             dx += self.current_speed
         
         self.rect.x += dx
@@ -169,7 +169,7 @@ class Player(pygame.sprite.Sprite):
             
         # orb collision
         hits_orb = pygame.sprite.spritecollide(self, orbs, False)
-        for orb in hits:
+        for orb in hits_orb:
             if orb.active:
                 self.charged = True
                 self.image.fill(PLAYER_COLOR)
@@ -220,7 +220,7 @@ class Orb(pygame.sprite.Sprite):
         self.inactive_image = pygame.Surface((20,20), pygame.SRCALPHA)
         pygame.draw.circle(self.inactive_image, (100,100,100), (10,10),10)
         self.image = self.active_image
-        self.rect = self.image.get_rect(center=(x,y))
+        self.rect = self.image.get_rect(center=(x+15,y+15))
         self.active =  True
         self.respawn_time=0
     def deactivate(self):
@@ -475,17 +475,16 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         if current_state == MENU:
             for button in menu_buttons:
                 button.check_hover(mouse_pos)
                 button.handle_event(event)
         elif current_state == GAME:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                player.flip_gravity()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     player.jump()
-                if event.key == pygame.K_f:  # flip gravity
-                    player.flip_gravity()
                 if event.key == pygame.K_r:  # reset position
                     player.rect.x = WIDTH // 2
                     player.rect.y = HEIGHT // 2 - 30
