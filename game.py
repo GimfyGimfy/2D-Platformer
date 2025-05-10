@@ -45,7 +45,7 @@ current_state = MENU
 # font setup
 font_large = pygame.freetype.SysFont('Arial', 60)
 font_medium = pygame.freetype.SysFont('Arial', 40)
-font_small = pygame.freetype.SysFont('Arial', 30)
+font_small = pygame.freetype.SysFont('Arial', 20)
 
 
 class Button:
@@ -215,19 +215,26 @@ class Sign(pygame.sprite.Sprite):
 class Orb(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.active_image = pygame.Surface((20,20), pygame.SRCALPHA)
-        pygame.draw.circle(self.active_image, (0,255,255), (10,10),10)
-        self.inactive_image = pygame.Surface((20,20), pygame.SRCALPHA)
-        pygame.draw.circle(self.inactive_image, (100,100,100), (10,10),10)
+        self.diameter = 75  # orb size
+        self.radius = self.diameter // 2
+
+        # Create active image
+        self.active_image = pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
+        pygame.draw.circle(self.active_image, (0, 255, 255), (self.radius, self.radius), self.radius)
+
+        # Create inactive image
+        self.inactive_image = pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
+        pygame.draw.circle(self.inactive_image, (100, 100, 100), (self.radius, self.radius), self.radius)
+
         self.image = self.active_image
-        self.rect = self.image.get_rect(center=(x+15,y+15))
+        self.rect = self.image.get_rect(center=(x + 15, y + 15))
         self.active =  True
         self.respawn_time=0
     def deactivate(self):
         if self.active:
             self.active=False
             self.image=self.inactive_image
-            self.respawn_time=pygame.time.get_ticks()+5000 #5 seconds
+            self.respawn_time=pygame.time.get_ticks()+2000 # 2 seconds
     def update(self):
         if not self.active and pygame.time.get_ticks() > self.respawn_time:
             self.active = True
@@ -368,12 +375,13 @@ def draw_game():
 
     instructions = [
         f"Level: {current_level}",
+        "A & D: Move left and right",
         "Space: Jump",
         "Shift: Sprint",
-        "F: Flip Gravity",
+        "Left Click: Flip Gravity",
         "R: Reset Position",
         "ESC: Pause Game",
-        "Charge: " + str(player.charged)
+        "Gravity-Flip ready: " + str(player.charged)
     ]
     for i, instruction in enumerate(instructions):
         instr_text, instr_rect = font_small.render(instruction, WHITE)
