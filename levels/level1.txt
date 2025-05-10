@@ -155,6 +155,8 @@ platform,15,10
 platform,14,10
 platform,13,10
 
+sign,5,-2, Welcome to Level 1!
+
 spike,24,9
 spike,23,9
 spike,22,9

@@ -187,6 +187,15 @@ class Spike(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class Sign(pygame.sprite.Sprite):
+    def __init__(self, x, y, message):
+        super().__init__()
+        self.image = pygame.Surface((20,20))
+        self.image.fill((200, 200, 0))
+        self.rect = self.image.get_rect(center=(x,y))
+        self.message = message
+
+
 class Teleporter(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, target_level):
         super().__init__()
@@ -199,7 +208,7 @@ class Teleporter(pygame.sprite.Sprite):
 
 
 def create_game_objects(level=1):
-    global all_sprites, platforms, spikes, player, teleporters, current_level
+    global all_sprites, platforms, spikes, signs, player, teleporters, current_level
     
     current_level = level  # Store current level
     
@@ -208,7 +217,8 @@ def create_game_objects(level=1):
     platforms = pygame.sprite.Group()
     spikes = pygame.sprite.Group()
     teleporters = pygame.sprite.Group()
-
+    signs = pygame.sprite.Group()
+    
     # Create player
     player = Player(WIDTH // 2, HEIGHT // 2)
     all_sprites.add(player)
@@ -225,13 +235,13 @@ def create_game_objects(level=1):
                     
                     if obj_type == 'platform':
                         x, y = map(int, parts[1:3])
-                        p = Platform(x*30+400, y*30+300)
+                        p = Platform(x*30+400, -y*30+300)
                         platforms.add(p)
                         all_sprites.add(p)
 
                     elif obj_type == 'spike':
                         x, y = map(int, parts[1:3])
-                        s = Spike(x*30+400, y*30+300)
+                        s = Spike(x*30+400, -y*30+300)
                         spikes.add(s)
                         all_sprites.add(s)
                         
@@ -240,6 +250,14 @@ def create_game_objects(level=1):
                         t = Teleporter(x, y, w, h, target)
                         teleporters.add(t)
                         all_sprites.add(t)
+                    elif obj_type == 'sign':
+                        x_grid, y_grid = map(int, parts[1:3])
+                        message = ','.join(parts[3:])  #join remaining parts as message
+                        x = x_grid * 30 + 400
+                        y = y_grid * 30 + 300
+                        sign = Sign(x, y, message)
+                        signs.add(sign)
+                        all_sprites.add(sign)
                         
     except FileNotFoundError:
         if level > current_level:  # Only show victory if progressing forward
@@ -278,6 +296,26 @@ def draw_game():
     for sprite in all_sprites:
         screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y - camera_y))
 
+    #check for active sign message
+    active_message = None
+    for sign in signs:
+        #distance
+        distance = pygame.math.Vector2(player.rect.center).distance_to(sign.rect.center)
+        if distance < 150:
+            active_sign = sign
+            break
+
+    #draw sign message
+    if active_message:
+        #background
+        text_bg = pygame.Surface((WIDTH, 50), pygame.SRCALPHA)
+        text_bg.fill((0, 0, 0, 128))
+        # text rendering
+        text_surface, text_rect = font_medium.render(active_message, WHITE)
+        text_rect.center = (WIDTH // 2, 25)
+        text_bg.blit(text_surface, text_rect)
+        screen.blit(text_bg, (0, 0))
+
     # info
     gravity_text = "Gravity: DOWN" if player.gravity_direction == 1 else "Gravity: UP"
     text_surface, text_rect = font_small.render(gravity_text, WHITE)
@@ -286,6 +324,7 @@ def draw_game():
     instructions = [
         f"Level: {current_level}",
         "Space: Jump",
+        "Shift: Sprint",
         "G: Flip Gravity",
         "R: Reset Position",
         "ESC: Pause Game",
@@ -406,6 +445,7 @@ while running:
                     player.rect.x = WIDTH // 2
                     player.rect.y = HEIGHT // 2 - 30
                     player.velocity_y = 0
+                    player.gravity_direction=1
                 if event.key == pygame.K_ESCAPE:  # toggle pause
                     toggle_pause()
         elif current_state == PAUSED:
