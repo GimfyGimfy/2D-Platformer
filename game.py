@@ -132,26 +132,7 @@ class Player(pygame.sprite.Sprite):
                         self.rect.bottom = platform.rect.top
                         self.velocity_y = 0
 
-        # check screen boundaries for vertical wrap
-        if self.rect.top > HEIGHT:
-            self.rect.bottom = 0
-        elif self.rect.bottom < 0:
-            self.rect.top = HEIGHT
 
-        # check screen boundaries for horizontal wrap
-        if self.rect.left > WIDTH:
-            self.rect.right = 0
-        elif self.rect.right < 0:
-            self.rect.left = WIDTH
-        hits = pygame.sprite.spritecollide(self, teleporters, False)
-        if hits:
-            create_game_objects(hits[0].target_level)
-        hits_spike = pygame.sprite.spritecollide(self, spikes, False)
-        if hits_spike:
-            player.gravity_direction = 1
-            player.rect.x = WIDTH // 2
-            player.rect.y = HEIGHT // 2 - 30
-            player.velocity_y = 0
 
     def jump(self):
         if self.on_ground:
@@ -165,9 +146,9 @@ class Player(pygame.sprite.Sprite):
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((width, height))
+        self.image = pygame.Surface((30, 30))
         self.image.fill(PLATFORM_COLOR)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -219,14 +200,14 @@ def create_game_objects(level=1):
                     obj_type = parts[0]
                     
                     if obj_type == 'platform':
-                        x, y, w, h = map(int, parts[1:5])
-                        p = Platform(x, y, w, h)
+                        x, y = map(int, parts[1:3])
+                        p = Platform(x*30+400, y*30+300)
                         platforms.add(p)
                         all_sprites.add(p)
 
                     elif obj_type == 'spike':
                         x, y = map(int, parts[1:3])
-                        s = Spike(x, y)
+                        s = Spike(x*30+400, y*30+300)
                         spikes.add(s)
                         all_sprites.add(s)
                         
@@ -395,7 +376,7 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     player.jump()
-                if event.key == pygame.K_g:  # flip gravity
+                if event.key == pygame.K_f:  # flip gravity
                     player.flip_gravity()
                 if event.key == pygame.K_r:  # reset position
                     player.rect.x = WIDTH // 2
