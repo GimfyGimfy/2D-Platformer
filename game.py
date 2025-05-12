@@ -1,10 +1,10 @@
 import pygame
 import sys
-import pygame.freetype  # better rendering
+import pygame.freetype
+from abc import ABC, abstractmethod
+from typing import List, Dict, Type
 
-pygame.init()
-
-# parameters
+#constants
 WIDTH, HEIGHT = 800, 600
 FPS = 60
 GRAVITY = 0.5
@@ -13,541 +13,458 @@ PLAYER_SPEED = 5
 SPRINT_SPEED = 8
 SPRINT_ACCELERATION = 1.2
 NUM_LEVELS = 3
-current_level = 1
-VICTORY = 4 #temporary
 
-# colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-PLAYER_COLOR = GREEN
-PLATFORM_COLOR = (100, 100, 100)
-SPIKE_COLOR = RED
-MENU_BG = (30, 30, 50)
-BUTTON_COLOR = (70, 70, 90)
-BUTTON_HOVER = (100, 100, 120)
-BUTTON_TEXT = (200, 200, 220)
-PAUSE_OVERLAY = (50, 50, 70, 180)
+COLORS = {
+    "WHITE": (255, 255, 255),
+    "BLACK": (0, 0, 0),
+    "RED": (255, 0, 0),
+    "GREEN": (0, 255, 0),
+    "BLUE": (0, 0, 255),
+    "PLATFORM": (100, 100, 100),
+    "MENU_BG": (30, 30, 50),
+    "BUTTON": (70, 70, 90),
+    "BUTTON_HOVER": (100, 100, 120),
+    "BUTTON_TEXT": (200, 200, 220),
+    "PAUSE_OVERLAY": (50, 50, 70, 180)
+}
 
-# create screen
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Gravity Platformer")
-clock = pygame.time.Clock()
+#abstract base class defining the interface for all game states (menu, play, pause)
+class GameState(ABC):
+    @abstractmethod
+    def handle_events(self, events: List[pygame.event.Event]) -> None:
+        pass
 
-# game states
-MENU = 0
-GAME = 1
-PAUSED = 2
-current_state = MENU
+    @abstractmethod
+    def update(self) -> None:
+        pass
 
-# font setup
-font_large = pygame.freetype.SysFont('Arial', 60)
-font_medium = pygame.freetype.SysFont('Arial', 40)
-font_small = pygame.freetype.SysFont('Arial', 20)
+    @abstractmethod
+    def draw(self, screen: pygame.Surface) -> None:
+        pass
+
+#manages game states
+class StateManager:
+    def __init__(self):
+        self._states: List[GameState] = []
+    
+    def push_state(self, state: GameState) -> None:
+        self._states.append(state)
+    
+    def pop_state(self) -> None:
+        if self._states:
+            self._states.pop()
+    
+    @property
+    def current_state(self) -> GameState:
+        return self._states[-1] if self._states else None
 
 
-class Button:
-    def __init__(self, x, y, width, height, text, action=None):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.text = text
-        self.action = action
-        self.is_hovered = False
-
-    def draw(self, surface):
-        color = BUTTON_HOVER if self.is_hovered else BUTTON_COLOR
-        pygame.draw.rect(surface, color, self.rect, border_radius=10)
-        pygame.draw.rect(surface, BLACK, self.rect, 2, border_radius=10)
-
-        text_surf, text_rect = font_medium.render(self.text, BUTTON_TEXT)
-        text_rect.center = self.rect.center
-        surface.blit(text_surf, text_rect)
-
-    def check_hover(self, pos):
-        self.is_hovered = self.rect.collidepoint(pos)
-        return self.is_hovered
-
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # when click
-            if self.is_hovered and self.action:
-                return self.action()
-        return None
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+#base sprite class for all game objects
+class GameObject(pygame.sprite.Sprite):
+    def __init__(self, x: int, y: int):
         super().__init__()
-        self.image = pygame.Surface((30, 50))
-        self.image.fill(PLAYER_COLOR)
+        self.image = pygame.Surface((30, 30))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+class Platform(GameObject):
+    def __init__(self, x: int, y: int):
+        super().__init__(x, y)
+        self.image.fill(COLORS["PLATFORM"])
+
+class Spike(GameObject):
+    def __init__(self, x: int, y: int):
+        super().__init__(x, y)
+        self.image.fill(COLORS["RED"])
+
+class Teleporter(GameObject):
+    def __init__(self, x: int, y: int, width: int, height: int, target_level: int):
+        super().__init__(x, y)
+        self.image = pygame.Surface((width, height))
+        self.image.fill(COLORS["BLUE"])
+        self.target_level = target_level
+
+class Orb(GameObject):
+    def __init__(self, x: int, y: int):
+        super().__init__(x, y)
+        self.diameter = 75
+        self.radius = self.diameter // 2
+        self.active_image = self._create_image((0, 255, 255))
+        self.inactive_image = self._create_image((100, 100, 100))
+        self.image = self.active_image
+        self.rect = self.image.get_rect(center=(x + 15, y + 15))
+        self.active = True
+        self.respawn_time = 0
+
+    def _create_image(self, color: tuple) -> pygame.Surface:
+        surface = pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
+        pygame.draw.circle(surface, color, (self.radius, self.radius), self.radius)
+        return surface
+
+    def deactivate(self) -> None: #orbs deactivate on touch, reactivate after certain time
+        if self.active:
+            self.active = False
+            self.image = self.inactive_image
+            self.respawn_time = pygame.time.get_ticks() + 2000 #2 seconds
+
+    def update(self) -> None: #check for conditions
+        if not self.active and pygame.time.get_ticks() > self.respawn_time:
+            self.active = True
+            self.image = self.active_image
+
+class Player(GameObject):
+    def __init__(self, x: int, y: int):
+        super().__init__(x, y)
+        self.image = pygame.Surface((30, 50)) #sprite 30x50
+        self.rect = self.image.get_rect(midbottom=(x + 15, y)) #fixed collisions
+        self.image.fill(COLORS["GREEN"])
         self.velocity_y = 0
-        self.gravity_direction = 1  # 1 for down, -1 for up
+        self.gravity_direction = 1
         self.on_ground = False
         self.charged = True
         self.current_speed = PLAYER_SPEED
         self.is_sprinting = False
         self.reset_cooldown = 0
 
-    def update(self, platforms):
+    #movement stuff
+
+    def apply_physics(self, platforms: pygame.sprite.Group) -> None:
         if self.reset_cooldown > 0:
             self.reset_cooldown -= 1
             return
-        # handle horizontal movement
-        dx = 0
-        keys = pygame.key.get_pressed()
-        self.is_sprinting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
-        
-        if self.is_sprinting:
-            # accelerate to sprint speed
-            if self.current_speed < SPRINT_SPEED:
-                self.current_speed += SPRINT_ACCELERATION
-        else:
-            # decelerate to normal speed
-            if self.current_speed > PLAYER_SPEED:
-                self.current_speed -= SPRINT_ACCELERATION * 1.2  # faster deceleration
 
-        self.current_speed = max(PLAYER_SPEED, min(self.current_speed, SPRINT_SPEED))
-        
-        if keys[pygame.K_a]:
-            dx -= self.current_speed
-        if keys[pygame.K_d]:
-            dx += self.current_speed
-        
-        self.rect.x += dx
-
-        # check horizontal collisions
-        for platform in platforms:
-            if self.rect.colliderect(platform.rect):
-                if dx > 0:  # moving right
-                    self.rect.right = platform.rect.left
-                elif dx < 0:  # moving left
-                    self.rect.left = platform.rect.right
-
-         # vertical movement
         self.velocity_y += GRAVITY * self.gravity_direction
-        dy = self.velocity_y
-        step = int(abs(dy)) + 1
-        step_direction = int(dy / abs(dy)) if dy != 0 else 0
+        self._handle_vertical_collision(platforms)
 
+    def _handle_vertical_collision(self, platforms: pygame.sprite.Group) -> None:
+        step = int(abs(self.velocity_y)) + 1 #small step for checking changes in position
+        step_dir = 1 if self.velocity_y > 0 else -1
         self.on_ground = False
-        for i in range(step):
-            self.rect.y += step_direction
+
+        for _ in range(step):
+            self.rect.y += step_dir
             for platform in platforms:
                 if self.rect.colliderect(platform.rect):
-                    if self.gravity_direction == 1:  # gravity down
-                        if step_direction > 0:
-                            self.rect.bottom = platform.rect.top
-                            self.velocity_y = 0
-                            self.on_ground = True
-                            self.charged = True
-                            self.image.fill(PLAYER_COLOR)
-                        elif step_direction < 0:
-                            self.rect.top = platform.rect.bottom
-                            self.velocity_y = 0
-                    else:  # gravity up
-                        if step_direction < 0:
-                            self.rect.top = platform.rect.bottom
-                            self.velocity_y = 0
-                            self.on_ground = True
-                            self.charged = True
-                            self.image.fill(PLAYER_COLOR)
-                        elif step_direction > 0:
-                            self.rect.bottom = platform.rect.top
-                            self.velocity_y = 0
-                    break  # stop checking after a collision
+                    self._resolve_vertical_collision(platform, step_dir)
+                    return
 
-        # platform collision
-        hits = pygame.sprite.spritecollide(self, teleporters, False)
-        if hits:
-            create_game_objects(hits[0].target_level)
-            
-        # spike collision
-        hits_spike = pygame.sprite.spritecollide(self, spikes, False)
-        if hits_spike:
-            player.reset_position()
-            
-        # orb collision
-        hits_orb = pygame.sprite.spritecollide(self, orbs, False)
-        for orb in hits_orb:
-            if orb.active:
-                self.charged = True
-                self.image.fill(PLAYER_COLOR)
+    def _resolve_vertical_collision(self, platform: GameObject, step_dir: int) -> None:
+        if self.gravity_direction == 1:
+            if step_dir == 1:
+                self.rect.bottom = platform.rect.top
+                self.on_ground = True
+            else:
+                self.rect.top = platform.rect.bottom
+        else:
+            if step_dir == -1:
+                self.rect.top = platform.rect.bottom
+                self.on_ground = True
+            else:
+                self.rect.bottom = platform.rect.top
+        self.velocity_y = 0
+        if self.on_ground:
+            self.charged = True
+            self.image.fill(COLORS["GREEN"])
 
-    def jump(self):
+    def jump(self) -> None:
         if self.on_ground:
             self.velocity_y = -JUMP_STRENGTH * self.gravity_direction
 
-    def flip_gravity(self):
+    def flip_gravity(self) -> None:
         if self.charged:
             self.gravity_direction *= -1
             self.velocity_y = 0
             self.charged = False
-            self.image.fill(WHITE)
-    def reset_position(self):
-        self.rect.x = WIDTH // 2
-        self.rect.y = HEIGHT // 2 - 30
+            self.image.fill(COLORS["WHITE"])
+
+    def reset_position(self) -> None:
+        self.rect.midbottom = (WIDTH // 2 + 15, HEIGHT // 2) #fixed bugs with restarting in wrong spot
         self.velocity_y = 0
         self.gravity_direction = 1
         self.reset_cooldown = 2
 
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(PLATFORM_COLOR)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+class Level:
+    def __init__(self):
+        self.all_sprites = pygame.sprite.Group() #initialise sprites
+        self.platforms = pygame.sprite.Group()
+        self.spikes = pygame.sprite.Group()
+        self.teleporters = pygame.sprite.Group()
+        self.orbs = pygame.sprite.Group()
+        self.player = None
 
-class Spike(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(SPIKE_COLOR)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-class Sign(pygame.sprite.Sprite):
-    def __init__(self, x, y, message):
-        super().__init__()
-        self.image = pygame.Surface((20,20))
-        self.image.fill((200, 200, 0))
-        self.rect = self.image.get_rect(center=(x,y))
-        self.message = message
-
-class Orb(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.diameter = 75  # orb size
-        self.radius = self.diameter // 2
-
-        # Create active image
-        self.active_image = pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
-        pygame.draw.circle(self.active_image, (0, 255, 255), (self.radius, self.radius), self.radius)
-
-        # Create inactive image
-        self.inactive_image = pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
-        pygame.draw.circle(self.inactive_image, (100, 100, 100), (self.radius, self.radius), self.radius)
-
-        self.image = self.active_image
-        self.rect = self.image.get_rect(center=(x + 15, y + 15))
-        self.active =  True
-        self.respawn_time=0
-    def deactivate(self):
-        if self.active:
-            self.active=False
-            self.image=self.inactive_image
-            self.respawn_time=pygame.time.get_ticks()+2000 # 2 seconds
-    def update(self):
-        if not self.active and pygame.time.get_ticks() > self.respawn_time:
-            self.active = True
-            self.image=self.active_image
-
-class Teleporter(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, target_level):
-        super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill(BLUE)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.target_level = target_level
-
-
-def create_game_objects(level=1):
-    global all_sprites, platforms, spikes, signs, orbs, player, teleporters, current_level
-    
-    current_level = level  # Store current level
-    
-    # Clear existing sprites
-    all_sprites = pygame.sprite.Group()
-    platforms = pygame.sprite.Group()
-    spikes = pygame.sprite.Group()
-    teleporters = pygame.sprite.Group()
-    signs = pygame.sprite.Group()
-    orbs = pygame.sprite.Group()
-    
-    # Create player
-    player = Player(WIDTH // 2, HEIGHT // 2)
-    all_sprites.add(player)
-
-    # Load level data
-    filename = f'levels/level{level}.txt'
-    try:
-        with open(filename, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    parts = line.split(',')
+class LevelLoader: #load levels from file
+    @staticmethod
+    def load(level_num: int) -> Level:
+        level = Level()
+        try:
+            with open(f'levels/level{level_num}.txt', 'r') as f:
+                for line in f:
+                    parts = line.strip().split(',')
+                    if not parts:
+                        continue
                     obj_type = parts[0]
-                    
+                    x = int(parts[1]) * 30 + 400
+                    y = -int(parts[2]) * 30 + 300
+
                     if obj_type == 'platform':
-                        x, y = map(int, parts[1:3])
-                        p = Platform(x*30+400, -y*30+300)
-                        platforms.add(p)
-                        all_sprites.add(p)
-
+                        platform = Platform(x, y)
+                        level.platforms.add(platform)
+                        level.all_sprites.add(platform)
                     elif obj_type == 'spike':
-                        x, y = map(int, parts[1:3])
-                        s = Spike(x*30+400, -y*30+300)
-                        spikes.add(s)
-                        all_sprites.add(s)
-                        
+                        spike = Spike(x, y)
+                        level.spikes.add(spike)
+                        level.all_sprites.add(spike)
                     elif obj_type == 'teleport':
-                        x, y, w, h, target = map(int, parts[1:6])
-                        t = Teleporter(x, y, w, h, target)
-                        teleporters.add(t)
-                        all_sprites.add(t)
-                        
-                    elif obj_type == 'sign':
-                        x_grid, y_grid = map(int, parts[1:3])
-                        message = ','.join(parts[3:])  #join remaining parts as message
-                        x = x_grid * 30 + 400
-                        y = y_grid * 30 + 300
-                        sign = Sign(x, y, message)
-                        signs.add(sign)
-                        all_sprites.add(sign)
-
+                        tele = Teleporter(x, y, int(parts[3]), int(parts[4]), int(parts[5]))
+                        level.teleporters.add(tele)
+                        level.all_sprites.add(tele)
                     elif obj_type == 'orb':
-                        x, y = map(int, parts[1:3])
-                        o = Orb(x*30+400, -y*30+300)
-                        orbs.add(o)
-                        all_sprites.add(o)
-                        
-    except FileNotFoundError:
-        if level > current_level:  # Only show victory if progressing forward
-            current_state = VICTORY
-            return
-        else:
-            # Handle fallback for missing level files
-            print(f"Level {level} not found!")
-            current_level = 1
-            create_game_objects(1)
+                        orb = Orb(x, y)
+                        level.orbs.add(orb)
+                        level.all_sprites.add(orb)
+        except FileNotFoundError:
+            print(f"Level {level_num} not found!")
+            return LevelLoader.load(1)
         
+        level.player = Player(WIDTH//2, HEIGHT//2 - 30)
+        level.all_sprites.add(level.player)
+        return level
 
-def draw_menu():
-    screen.fill(MENU_BG)
+class CollisionSystem: #check for touching objects
+    @staticmethod
+    def handle_collisions(player: Player, level: Level, state_manager: StateManager) -> None:
+        teleporters = pygame.sprite.spritecollide(player, level.teleporters, False)
+        if teleporters:
+            state_manager.push_state(GameStatePlay(state_manager, teleporters[0].target_level))
 
-    # title
-    title_surf, title_rect = font_large.render("Gravity Platformer", WHITE)
-    title_rect.center = (WIDTH // 2, 100)
-    screen.blit(title_surf, title_rect)
+        if pygame.sprite.spritecollide(player, level.spikes, False):
+            player.reset_position()
 
-    # buttons
-    for button in menu_buttons:
-        button.draw(screen)
-
-    pygame.display.flip()
-
-
-def draw_game():
-    screen.fill(BLACK)
-    
-    #calculate camera offset
-    camera_x = player.rect.centerx - WIDTH //2
-    camera_y = player.rect.centery - HEIGHT // 2
-    
-    #draw all sprites but include camera offset
-    for sprite in all_sprites:
-        screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y - camera_y))
-
-    #check for active sign message
-    active_message = None
-    for sign in signs:
-        #distance
-        distance = pygame.math.Vector2(player.rect.center).distance_to(sign.rect.center)
-        if distance < 150:
-            active_sign = sign
-            break
-
-    #draw sign message
-    if active_message:
-        #background
-        text_bg = pygame.Surface((WIDTH, 50), pygame.SRCALPHA)
-        text_bg.fill((0, 0, 0, 128))
-        # text rendering
-        text_surface, text_rect = font_medium.render(active_message, WHITE)
-        text_rect.center = (WIDTH // 2, 25)
-        text_bg.blit(text_surface, text_rect)
-        screen.blit(text_bg, (0, 0))
-
-    # info
-    gravity_text = "Gravity: DOWN" if player.gravity_direction == 1 else "Gravity: UP"
-    text_surface, text_rect = font_small.render(gravity_text, WHITE)
-    screen.blit(text_surface, (10, 10))
-
-    instructions = [
-        f"Level: {current_level}",
-        "A & D: Move left and right",
-        "Space: Jump",
-        "Shift: Sprint",
-        "Left Click: Flip Gravity",
-        "R: Reset Position",
-        "ESC: Pause Game",
-        "Gravity-Flip ready: " + str(player.charged)
-    ]
-    for i, instruction in enumerate(instructions):
-        instr_text, instr_rect = font_small.render(instruction, WHITE)
-        screen.blit(instr_text, (10, 50 + i * 30))
-
-    pygame.display.flip()
-
-def draw_victory():
-    screen.fill(MENU_BG)
-    
-    title_surf, title_rect = font_large.render("CONGRATULATIONS!", GREEN)
-    title_rect.center = (WIDTH // 2, HEIGHT // 2 - 50)
-    screen.blit(title_surf, title_rect)
-    
-    sub_surf, sub_rect = font_medium.render("You've completed all levels!", WHITE)
-    sub_rect.center = (WIDTH // 2, HEIGHT // 2 + 50)
-    screen.blit(sub_surf, sub_rect)
-    
-    pygame.display.flip()
-
-def draw_pause_menu():
-    # overlay
-    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill(PAUSE_OVERLAY)
-    screen.blit(overlay, (0, 0))
-
-    title_surf, title_rect = font_large.render("PAUSED", WHITE)
-    title_rect.center = (WIDTH // 2, HEIGHT // 2 - 100)
-    screen.blit(title_surf, title_rect)
-
-    for button in pause_buttons:
-        button.draw(screen)
-
-    pygame.display.flip()
-
-
-def quit_game():
-    pygame.quit()
-    sys.exit()
-
-
-def start_game():
-    global current_state
-    current_state = GAME
-    create_game_objects()
-
-
-def continue_game():
-    global current_state
-    current_state = GAME
-
-
-def dummy_action():
-    print(f"This button doesn't do anything yet")
-
-
-def return_to_menu():
-    global current_state
-    current_state = MENU
-
-
-def toggle_pause():
-    global current_state
-    if current_state == GAME:
-        current_state = PAUSED
-    elif current_state == PAUSED:
-        current_state = GAME
-
-
-# main menu buttons
-menu_buttons = [
-    Button(WIDTH // 2 - 150, 200, 300, 60, "Start Game", start_game),
-    Button(WIDTH // 2 - 150, 280, 300, 60, "Save Game", dummy_action),
-    Button(WIDTH // 2 - 150, 280, 300, 60, "Load Game", dummy_action),
-    Button(WIDTH // 2 - 150, 360, 300, 60, "Settings", dummy_action),
-    Button(WIDTH // 2 - 150, 440, 300, 60, "End Game", quit_game)
-]
-
-# pause menu buttons
-pause_buttons = [
-    Button(WIDTH // 2 - 150, HEIGHT // 2, 300, 60, "Continue", continue_game),
-    Button(WIDTH // 2 - 150, HEIGHT // 2 + 80, 300, 60, "Main Menu", return_to_menu)
-]
-
-def set_state(new_state):
-    global current_state
-    current_state = new_state
-
-def start_game(level=1):
-    create_game_objects(level)
-    set_state(GAME)
-
-
-# main game loop
-running = True
-while running:
-    mouse_pos = pygame.mouse.get_pos()
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if current_state == MENU:
-            for button in menu_buttons:
-                button.check_hover(mouse_pos)
-                button.handle_event(event)
-        elif current_state == GAME:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                player.flip_gravity()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    player.jump()
-                if event.key == pygame.K_r:  # reset position
-                    player.reset_position()
-                if event.key == pygame.K_ESCAPE:  # toggle pause
-                    toggle_pause()
-        elif current_state == PAUSED:
-            for button in pause_buttons:
-                button.check_hover(mouse_pos)
-                button.handle_event(event)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:  # unpause if paused
-                    toggle_pause()
-
-    # drawing screen based on the game state
-    if current_state == MENU:
-        draw_menu()
-    elif current_state == GAME:
-        for sprite in all_sprites:
-            if not isinstance(sprite, Player):
-                sprite.update()
-        player.update(platforms)
-        hits = pygame.sprite.spritecollide(player, orbs, False)
-        for orb in hits:
+        for orb in pygame.sprite.spritecollide(player, level.orbs, False):
             if orb.active:
                 orb.deactivate()
-        draw_game()
-    elif current_state == PAUSED:
-        screen.fill(BLACK)
-        all_sprites.draw(screen)
+                player.charged = True
+                player.image.fill(COLORS["GREEN"])
 
-        # overlay
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill(PAUSE_OVERLAY)
-        screen.blit(overlay, (0, 0))
+class GameStatePlay(GameState):
+    def __init__(self, state_manager: StateManager, level_num: int = 1):
+        self.state_manager = state_manager
+        self.level_num = level_num
+        self.level = LevelLoader.load(level_num)
+        self.camera = (0, 0)
+        self.active_message = None
 
-        # title
-        title_surf, title_rect = font_large.render("PAUSED", WHITE)
-        title_rect.center = (WIDTH // 2, HEIGHT // 2 - 100)
-        screen.blit(title_surf, title_rect)
+    def handle_events(self, events: List[pygame.event.Event]) -> None:
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                self.level.player.flip_gravity()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.level.player.jump()
+                if event.key == pygame.K_r:
+                    self.level.player.reset_position()
+                if event.key == pygame.K_ESCAPE:
+                    self.state_manager.push_state(GameStatePaused(self.state_manager))
 
-        # hovering and button drawing
-        for button in pause_buttons:
-            button.check_hover(mouse_pos)
-            button.draw(screen)
+    def update(self) -> None:
+        keys = pygame.key.get_pressed()
+        dx = 0
+        self.level.player.is_sprinting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
 
+        if self.level.player.is_sprinting:
+            self.level.player.current_speed = min(SPRINT_SPEED, self.level.player.current_speed + SPRINT_ACCELERATION)
+        else:
+            self.level.player.current_speed = max(PLAYER_SPEED, self.level.player.current_speed - SPRINT_ACCELERATION*1.2)
+
+        if keys[pygame.K_a]:
+            dx -= self.level.player.current_speed
+        if keys[pygame.K_d]:
+            dx += self.level.player.current_speed
+
+        self.level.player.rect.x += dx
+        self._handle_horizontal_collision()
+        self.level.player.apply_physics(self.level.platforms)
+        CollisionSystem.handle_collisions(self.level.player, self.level, self.state_manager)
+        self.level.orbs.update()
+
+    def _handle_horizontal_collision(self) -> None:
+        for platform in self.level.platforms:
+            if self.level.player.rect.colliderect(platform.rect):
+                if self.level.player.rect.centerx < platform.rect.centerx:
+                    self.level.player.rect.right = platform.rect.left
+                else:
+                    self.level.player.rect.left = platform.rect.right
+
+    def draw(self, screen: pygame.Surface) -> None: #drawing the game + camera with offset
+        screen.fill(COLORS["BLACK"])
+        self.camera = (self.level.player.rect.centerx - WIDTH//2,
+                      self.level.player.rect.centery - HEIGHT//2)
+        
+        for sprite in self.level.all_sprites:
+            screen.blit(sprite.image, (sprite.rect.x - self.camera[0], 
+                                      sprite.rect.y - self.camera[1]))
+        
+        self._draw_ui(screen)
         pygame.display.flip()
-    elif current_state == VICTORY:
-        draw_victory()
 
-    clock.tick(FPS)
+    def _draw_ui(self, screen: pygame.Surface) -> None: #stuff in the top left corner
+        player = self.level.player
+        current_level = self.level_num
+        
+        # Define instructions and game info
+        instructions = [
+            f"Level: {current_level}",
+            "A & D: Move left and right",
+            "Space: Jump",
+            "Shift: Sprint",
+            "Left Click: Flip Gravity",
+            "R: Reset Position",
+            "ESC: Pause Game",
+            f"Gravity-Flip ready: {player.charged}"
+        ]
 
-pygame.quit()
-sys.exit()
+        font_small = pygame.freetype.SysFont('Arial', 20)
+        line_height = 30
+        start_x = 10
+        start_y = 40
+
+        gravity_text = "Gravity: DOWN" if player.gravity_direction == 1 else "Gravity: UP"
+        text_surf, _ = font_small.render(gravity_text, COLORS["WHITE"])
+        screen.blit(text_surf, (10, 10))
+
+        for i, text in enumerate(instructions):
+            text_surf, _ = font_small.render(text, COLORS["WHITE"])
+            screen.blit(text_surf, (start_x, start_y + i * line_height))
+
+class GameStatePaused(GameState):
+    def __init__(self, state_manager: StateManager):
+        self.state_manager = state_manager
+        self.buttons = [
+            Button(WIDTH//2-150, HEIGHT//2, 300, 60, "Continue", self.continue_game),
+            Button(WIDTH//2-150, HEIGHT//2+80, 300, 60, "Main Menu", self.main_menu)
+        ]
+
+    def continue_game(self) -> None:
+        self.state_manager.pop_state()
+
+    def main_menu(self) -> None:
+        self.state_manager.pop_state()
+        self.state_manager.push_state(GameStateMenu(self.state_manager))
+
+    def handle_events(self, events: List[pygame.event.Event]) -> None:
+        mouse_pos = pygame.mouse.get_pos()
+        for event in events:
+            for button in self.buttons:
+                button.check_hover(mouse_pos)
+                if event.type == pygame.MOUSEBUTTONDOWN and button.is_hovered:
+                    button.action()
+
+    def update(self) -> None:
+        pass
+
+    def draw(self, screen: pygame.Surface) -> None:
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill(COLORS["PAUSE_OVERLAY"])
+        screen.blit(overlay, (0, 0))
+        
+        font_large = pygame.freetype.SysFont('Arial', 60)
+        title_surf, title_rect = font_large.render("PAUSED", COLORS["WHITE"])
+        title_rect.center = (WIDTH//2, HEIGHT//2 - 100)
+        screen.blit(title_surf, title_rect)
+        
+        for button in self.buttons:
+            button.draw(screen)
+        
+        pygame.display.flip()
+
+class GameStateMenu(GameState):
+    def __init__(self, state_manager: StateManager):
+        self.state_manager = state_manager
+        self.buttons = [
+            Button(WIDTH//2-150, 200, 300, 60, "Start Game", self.start_game),
+            Button(WIDTH//2-150, 280, 300, 60, "Load Game", self.empty_function),
+            Button(WIDTH//2-150, 360, 300, 60, "Settings", self.empty_function),
+            Button(WIDTH//2-150, 440, 300, 60, "Quit", self.quit_game)
+        ]
+
+    def empty_function(self) -> None:
+        """Placeholder function for buttons that don't do anything yet"""
+        pass
+
+    def start_game(self) -> None:
+        self.state_manager.push_state(GameStatePlay(self.state_manager))
+
+    def quit_game(self) -> None:
+        pygame.quit()
+        sys.exit()
+
+    def handle_events(self, events: List[pygame.event.Event]) -> None:
+        mouse_pos = pygame.mouse.get_pos()
+        for event in events:
+            for button in self.buttons:
+                button.check_hover(mouse_pos)
+                if event.type == pygame.MOUSEBUTTONDOWN and button.is_hovered:
+                    button.action()
+
+    def update(self) -> None:
+        pass
+
+    def draw(self, screen: pygame.Surface) -> None:
+        screen.fill(COLORS["MENU_BG"])
+        font_large = pygame.freetype.SysFont('Arial', 60)
+        title_surf, title_rect = font_large.render("Gravity Platformer", COLORS["WHITE"])
+        title_rect.center = (WIDTH//2, 100)
+        screen.blit(title_surf, title_rect)
+        
+        for button in self.buttons:
+            button.draw(screen)
+        
+        pygame.display.flip()
+
+#stuff for buttons
+
+class Button:
+    def __init__(self, x: int, y: int, width: int, height: int, text: str, action: callable):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.action = action
+        self.is_hovered = False
+
+    def draw(self, surface: pygame.Surface) -> None:
+        color = COLORS["BUTTON_HOVER"] if self.is_hovered else COLORS["BUTTON"]
+        pygame.draw.rect(surface, color, self.rect, border_radius=10)
+        pygame.draw.rect(surface, COLORS["BLACK"], self.rect, 2, border_radius=10)
+        font = pygame.freetype.SysFont('Arial', 40)
+        text_surf, text_rect = font.render(self.text, COLORS["BUTTON_TEXT"])
+        text_rect.center = self.rect.center
+        surface.blit(text_surf, text_rect)
+
+    def check_hover(self, pos: tuple) -> bool:
+        self.is_hovered = self.rect.collidepoint(pos)
+        return self.is_hovered
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Gravity Platformer")
+    clock = pygame.time.Clock()
+    
+    state_manager = StateManager()
+    state_manager.push_state(GameStateMenu(state_manager))
+
+    while True:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        current_state = state_manager.current_state
+        current_state.handle_events(events)
+        current_state.update()
+        current_state.draw(screen)
+        clock.tick(FPS)
+
+if __name__ == "__main__":
+    main()
