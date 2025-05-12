@@ -1,0 +1,22 @@
+import pygame
+from entities.player import Player
+from level import Level
+from game_states.state_manager import StateManager
+from constants import COLORS
+
+class CollisionSystem: #check for touching objects
+    @staticmethod
+    def handle_collisions(player: Player, level: Level, state_manager: StateManager) -> None:
+        teleporters = pygame.sprite.spritecollide(player, level.teleporters, False)
+        if teleporters:
+            from game_states.play import GameStatePlay
+            state_manager.push_state(GameStatePlay(state_manager, teleporters[0].target_level))
+
+        if pygame.sprite.spritecollide(player, level.spikes, False):
+            player.reset_position()
+
+        for orb in pygame.sprite.spritecollide(player, level.orbs, False):
+            if orb.active:
+                orb.deactivate()
+                player.charged = True
+                player.image.fill(COLORS["GREEN"])
