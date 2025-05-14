@@ -18,7 +18,6 @@ class GameStatePlay(GameState):
         self.level_num = level_num
         self.level = LevelLoader.load(level_num)
         self.camera = (0, 0)
-        self.active_message = None
         self.background = pygame.image.load(BG_IMAGE_PATH).convert()
         self.background = pygame.transform.scale(self.background,(WIDTH,HEIGHT))
 
@@ -112,3 +111,19 @@ class GameStatePlay(GameState):
         for i, text in enumerate(instructions):
             text_surf, _ = font_small.render(text, COLORS["WHITE"])
             screen.blit(text_surf, (start_x, start_y + i * line_height))
+        if self.level.active_sign:
+            sign = self.level.active_sign
+            font = pygame.freetype.SysFont('Arial', 24)
+            
+            # Calculate screen position relative to camera
+            sign_screen_x = sign.rect.x - self.camera[0]
+            sign_screen_y = sign.rect.y - self.camera[1] - 40  # Position above sign
+            
+            # Text background
+            text_surf, text_rect = font.render(sign.message, COLORS["WHITE"])
+            bg_rect = text_rect.inflate(20, 10)
+            bg_rect.center = (sign_screen_x + sign.rect.width//2, sign_screen_y)
+            
+            pygame.draw.rect(screen, COLORS["BLACK"], bg_rect)
+            pygame.draw.rect(screen, COLORS["WHITE"], bg_rect, 2)
+            screen.blit(text_surf, (bg_rect.x + 10, bg_rect.y + 5))

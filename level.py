@@ -4,6 +4,7 @@ from entities.platforms import Platform
 from entities.spikes import Spike
 from entities.teleporters import Teleporter
 from entities.orbs import Orb
+from entities.signs import Sign
 from entities.player import Player
 
 class Level:
@@ -13,6 +14,7 @@ class Level:
         self.spikes = pygame.sprite.Group()
         self.teleporters = pygame.sprite.Group()
         self.orbs = pygame.sprite.Group()
+        self.signs = pygame.sprite.Group()
         self.player = None
 
 class LevelLoader: #load levels from file
@@ -45,6 +47,11 @@ class LevelLoader: #load levels from file
                         orb = Orb(x, y)
                         level.orbs.add(orb)
                         level.all_sprites.add(orb)
+                    elif obj_type == 'sign':
+                        message = ','.join(parts[3:])
+                        sign = Sign(x, y, message)
+                        level.signs.add(sign)
+                        level.all_sprites.add(sign)
         except FileNotFoundError:
             print(f"Level {level_num} not found!")
             return LevelLoader.load(1)

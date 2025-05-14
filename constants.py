@@ -1,5 +1,5 @@
 #constants
-WIDTH, HEIGHT = 1920, 1080
+WIDTH, HEIGHT = 800,600
 FPS = 60
 GRAVITY = 0.5
 JUMP_STRENGTH = 12
@@ -15,6 +15,7 @@ COLORS = {
     "RED": (255, 0, 0),
     "GREEN": (0, 255, 0),
     "BLUE": (0, 0, 255),
+    "YELLOW": (255, 255, 0),
     "PLATFORM": (100, 100, 100),
     "MENU_BG": (30, 30, 50),
     "BUTTON": (70, 70, 90),

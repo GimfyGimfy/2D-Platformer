@@ -205,3 +205,4 @@ spike,27,-7
 spike,25,-7
 spike,-20,9
 spike,-18,9
+sign,5,1,Press SPACE to jump!
