@@ -49,6 +49,6 @@ class LevelLoader: #load levels from file
             print(f"Level {level_num} not found!")
             return LevelLoader.load(1)
         
-        level.player = Player(WIDTH//2, HEIGHT//2 - 30)
+        level.player = Player(400,300)
         level.all_sprites.add(level.player)
         return level

@@ -68,7 +68,7 @@ class Player(GameObject):
             self.image.fill(COLORS["WHITE"])
 
     def reset_position(self) -> None:
-        self.rect.midbottom = (WIDTH // 2 + 15, HEIGHT // 2) #fixed bugs with restarting in wrong spot
+        self.rect.midbottom = (415,300) #fixed bugs with restarting in wrong spot
         self.velocity_y = 0
         self.gravity_direction = 1
         self.reset_cooldown = 2
