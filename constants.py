@@ -7,6 +7,7 @@ PLAYER_SPEED = 5
 SPRINT_SPEED = 8
 SPRINT_ACCELERATION = 1.2
 NUM_LEVELS = 3
+BG_IMAGE_PATH="assets/images/background.png"
 
 COLORS = {
     "WHITE": (255, 255, 255),
