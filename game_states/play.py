@@ -5,7 +5,7 @@ from game_states.base import GameState
 from game_states.paused import GameStatePaused
 from level import Level, LevelLoader
 from collision_system import CollisionSystem
-from constants import COLORS, PLAYER_SPEED, SPRINT_ACCELERATION, SPRINT_SPEED, WIDTH, HEIGHT
+from constants import COLORS, PLAYER_SPEED, SPRINT_ACCELERATION, SPRINT_SPEED, WIDTH, HEIGHT, BG_IMAGE_PATH
 
 from typing import TYPE_CHECKING
 
@@ -19,6 +19,8 @@ class GameStatePlay(GameState):
         self.level = LevelLoader.load(level_num)
         self.camera = (0, 0)
         self.active_message = None
+        self.background = pygame.image.load(BG_IMAGE_PATH).convert()
+        self.background = pygame.transform.scale(self.background,(WIDTH,HEIGHT))
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         for event in events:
@@ -61,14 +63,23 @@ class GameStatePlay(GameState):
                 else:
                     self.level.player.rect.left = platform.rect.right
 
-    def draw(self, screen: pygame.Surface) -> None: #drawing the game + camera with offset
-        screen.fill(COLORS["BLACK"])
-        self.camera = (self.level.player.rect.centerx - WIDTH//2,
-                      self.level.player.rect.centery - HEIGHT//2)
+    def draw(self, screen: pygame.Surface) -> None: #drawing the game
+        self.camera = (
+            self.level.player.rect.centerx - WIDTH // 2,
+            self.level.player.rect.centery - HEIGHT // 2
+        ) #create camera with offset
+        parallax_offset = -self.camera[0] * 0.5 #background parallax effect (scrolling at half speed of camera)
+        bg_width = self.background.get_width()
+
+        for i in range(-1, WIDTH // bg_width + 3):
+            x = (parallax_offset % bg_width) + i * bg_width - bg_width
+            screen.blit(self.background, (x, 0))
         
-        for sprite in self.level.all_sprites:
-            screen.blit(sprite.image, (sprite.rect.x - self.camera[0], 
-                                      sprite.rect.y - self.camera[1]))
+        for sprite in self.level.all_sprites: #drawing all the sprites on the screen
+            screen_x = sprite.rect.x - self.camera[0]
+            screen_y = sprite.rect.y - self.camera[1]
+            if -30 < screen_x < WIDTH + 30 and -30 < screen_y < HEIGHT + 30:
+                screen.blit(sprite.image, (screen_x, screen_y))
         
         self._draw_ui(screen)
         pygame.display.flip()
