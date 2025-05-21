@@ -9,8 +9,10 @@ class CollisionSystem: #check for touching objects
     def handle_collisions(player: Player, level: Level, state_manager: StateManager) -> None:
         teleporters = pygame.sprite.spritecollide(player, level.teleporters, False)
         if teleporters:
-            from game_states.play import GameStatePlay
-            state_manager.push_state(GameStatePlay(state_manager, teleporters[0].target_level))
+            teleporter=teleporters[0]
+            state_manager.pop_state()
+            from game_states.story import GameStateStory
+            state_manager.push_state(GameStateStory(state_manager, teleporter.target_level))
 
         if pygame.sprite.spritecollide(player, level.spikes, False):
             player.reset_position()

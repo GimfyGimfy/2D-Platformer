@@ -17,8 +17,7 @@ class GameStateMenu(GameState):
             Button(CONFIG.WIDTH//2-150, 200, 300, 60, "Start Game", self.start_game),
             Button(CONFIG.WIDTH//2-150, 280, 300, 60, "Load Game", self.empty_function),
             Button(CONFIG.WIDTH//2-150, 360, 300, 60, "Settings", self.open_settings),
-            Button(CONFIG.WIDTH//2-150, 440, 300, 60, "Quit", self.quit_game),
-            Button(CONFIG.WIDTH//2-150, 440, 300, 60, "Replay Story", self.replay_story)
+            Button(CONFIG.WIDTH//2-150, 440, 300, 60, "Quit", self.quit_game)
         ]
 
     def empty_function(self) -> None:
@@ -36,10 +35,6 @@ class GameStateMenu(GameState):
     def quit_game(self) -> None:
         pygame.quit()
         sys.exit()
-        
-    def replay_story(self): #doesn't work yet
-        from game_states.story import GameStateStory
-        self.state_manager.push_state(GameStateStory(self.state_manager))
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         mouse_pos = pygame.mouse.get_pos()

@@ -4,12 +4,15 @@ from game_states.base import GameState
 from constants import CONFIG, COLORS
 
 class GameStateStory(GameState):
-    def __init__(self, state_manager):
+    def __init__(self, state_manager, target_level: int, show_menu_after: bool = False):
         self.state_manager = state_manager
         self.current_page = 0
+        self.target_level=target_level
         self.alpha = 0
         self.fade_speed = 5
-        self.story_pages = [
+        self.show_menu_after=show_menu_after
+        self.stories: Dict[int, List[List[str]]] = {
+        0: [
             [
                 "In a world where gravity bends",
                 "to the will of unknown,",
@@ -28,9 +31,34 @@ class GameStateStory(GameState):
                 "mysterious events that",
                 "lead to unknown dimensions."
             ]
-        ]
+            ],
+            1: [
+                ["The first trial complete,",
+                 "but greater challenges await..."],
+                ["The orbs hum with",
+                 "increased energy now..."]
+            ],
+            2: [
+                ["Halfway through the journey,",
+                 "the laws of physics seem",
+                 "to bend more strangely..."],
+                ["A strange energy pulses",
+                 "from the teleporter..."]
+            ],
+            3: [
+                ["The final challenge awaits!",
+                 "All your skills will be",
+                 "tested one last time..."],
+                ["The master orb glows",
+                 "with intense power..."]
+            ]
+        }
+        self.story_pages=self.stories.get(target_level,[])
+        self.active=bool(self.story_pages) #activate only if we have story pages
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
+        if not self.active:
+            return
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
@@ -41,9 +69,14 @@ class GameStateStory(GameState):
                         self.current_page += 1
                         self.alpha = 0
                         if self.current_page >= len(self.story_pages):
-                            self.state_manager.push_state(
-                                self.state_manager.menu_state
-                            )
+                            self.active = False
+                            if self.show_menu_after:
+                                from game_states.menu import GameStateMenu
+                                self.state_manager.push_state(GameStateMenu(self.state_manager))
+                            else:
+                                self.state_manager.pop_state()
+                                from game_states.play import GameStatePlay
+                                self.state_manager.push_state(GameStatePlay(self.state_manager, self.target_level))
                 elif event.key == pygame.K_ESCAPE:
                     self.state_manager.push_state(
                         self.state_manager.menu_state
@@ -54,6 +87,8 @@ class GameStateStory(GameState):
             self.alpha = min(255, self.alpha + self.fade_speed)
 
     def draw(self, screen: pygame.Surface) -> None:
+        if not self.active or self.current_page >=len(self.story_pages):
+            return
         screen.fill(COLORS["BLACK"])
         
         #calculate positions

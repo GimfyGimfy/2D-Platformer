@@ -17,9 +17,8 @@ def main():
     menu_state = GameStateMenu(state_manager)
     state_manager.menu_state = menu_state
     
-    # Start with story state
-    state_manager.push_state(GameStateStory(state_manager))
-    
+    #start with story state
+    state_manager.push_state(GameStateStory(state_manager, show_menu_after=True, target_level=0))
     while True:
         events = pygame.event.get()
         for event in events:
