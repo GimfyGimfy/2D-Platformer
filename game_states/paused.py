@@ -3,7 +3,7 @@ from typing import List
 from game_states.base import GameState
 from game_states.menu import GameStateMenu
 from ui.button import Button
-from constants import COLORS, WIDTH, HEIGHT
+from constants import COLORS, CONFIG
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -13,8 +13,8 @@ class GameStatePaused(GameState):
     def __init__(self, state_manager: 'StateManager'):
         self.state_manager = state_manager
         self.buttons = [
-            Button(WIDTH//2-150, HEIGHT//2, 300, 60, "Continue", self.continue_game),
-            Button(WIDTH//2-150, HEIGHT//2+80, 300, 60, "Main Menu", self.main_menu)
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2, 300, 60, "Continue", self.continue_game),
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+80, 300, 60, "Main Menu", self.main_menu)
         ]
 
     def continue_game(self) -> None:
@@ -36,13 +36,13 @@ class GameStatePaused(GameState):
         pass
 
     def draw(self, screen: pygame.Surface) -> None:
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay = pygame.Surface((CONFIG.WIDTH, CONFIG.HEIGHT), pygame.SRCALPHA)
         overlay.fill(COLORS["PAUSE_OVERLAY"])
         screen.blit(overlay, (0, 0))
         
         font_large = pygame.freetype.SysFont('Arial', 60)
         title_surf, title_rect = font_large.render("PAUSED", COLORS["WHITE"])
-        title_rect.center = (WIDTH//2, HEIGHT//2 - 100)
+        title_rect.center = (CONFIG.WIDTH//2, CONFIG.HEIGHT//2 - 100)
         screen.blit(title_surf, title_rect)
         
         for button in self.buttons:

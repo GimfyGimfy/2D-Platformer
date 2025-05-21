@@ -1,6 +1,4 @@
 #constants
-WIDTH, HEIGHT = 800,600
-FPS = 60
 GRAVITY = 0.5
 JUMP_STRENGTH = 12
 PLAYER_SPEED = 5
@@ -23,3 +21,11 @@ COLORS = {
     "BUTTON_TEXT": (200, 200, 220),
     "PAUSE_OVERLAY": (50, 50, 70, 180)
 }
+
+class GameConfig:
+    def __init__(self):
+        self.WIDTH = 800
+        self.HEIGHT = 600
+        self.FPS = 60
+
+CONFIG = GameConfig()

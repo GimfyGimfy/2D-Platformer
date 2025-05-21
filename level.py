@@ -1,5 +1,5 @@
 import pygame
-from constants import WIDTH, HEIGHT
+from constants import CONFIG
 from entities.platforms import Platform
 from entities.spikes import Spike
 from entities.teleporters import Teleporter

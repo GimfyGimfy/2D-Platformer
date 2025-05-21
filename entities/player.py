@@ -1,6 +1,6 @@
 import pygame
 from entities.game_object import GameObject
-from constants import COLORS, GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, SPRINT_SPEED, SPRINT_ACCELERATION, WIDTH, HEIGHT
+from constants import COLORS, GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, SPRINT_SPEED, SPRINT_ACCELERATION
 
 class Player(GameObject):
     def __init__(self, x: int, y: int):
