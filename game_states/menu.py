@@ -1,5 +1,7 @@
 import pygame
 import sys
+import json
+import os
 from typing import List
 from ui.button import Button
 from constants import COLORS, CONFIG
@@ -26,7 +28,7 @@ class GameStateMenu(GameState):
         #create buttons centered based on current resolution
         self.buttons = [
             Button(CONFIG.WIDTH//2-150, 200, 300, 60, "Start Game", self.start_game),
-            Button(CONFIG.WIDTH//2-150, 280, 300, 60, "Load Game", self.empty_function),
+            Button(CONFIG.WIDTH//2-150, 280, 300, 60, "Load Game", self.load_game),
             Button(CONFIG.WIDTH//2-150, 360, 300, 60, "Settings", self.open_settings),
             Button(CONFIG.WIDTH//2-150, 440, 300, 60, "Quit", self.quit_game)
         ]
@@ -52,8 +54,27 @@ class GameStateMenu(GameState):
         pygame.quit()
         sys.exit()
     
+    def load_game(self) -> None:
+        try:
+            with open("saves/save.json", "r") as f:
+                save_data = json.load(f)
+            
+            #clear existing states
+            while self.state_manager._states:
+                self.state_manager.pop_state()
+            
+            #create new play state with saved data
+            from game_states.play import GameStatePlay
+            play_state = GameStatePlay(self.state_manager, save_data["level"])
+            play_state.level.player.set_position(save_data["player_x"], save_data["player_y"])
+            play_state.level.player.gravity_direction = save_data.get("gravity", 1)
+            
+            self.state_manager.push_state(play_state)
+            
+        except Exception as e:
+            print(f"Load failed: {str(e)}")
+    
     def on_activate(self):
-
         self._create_buttons()
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:

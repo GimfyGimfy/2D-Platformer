@@ -69,6 +69,10 @@ class Player(GameObject):
             self.image.fill(COLORS["WHITE"])
             self.just_flipped = True
 
+    def set_position(self, x: int, y: int) -> None:
+        self.rect.x = x
+        self.rect.y = y
+
     def reset_position(self) -> None:
         self.rect.midbottom = (415,300)
         self.velocity_y = 0

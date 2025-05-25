@@ -1,4 +1,6 @@
 import pygame
+import json
+import os
 from typing import List
 from game_states.base import GameState
 from game_states.menu import GameStateMenu
@@ -12,9 +14,11 @@ if TYPE_CHECKING:
 class GameStatePaused(GameState):
     def __init__(self, state_manager: 'StateManager'):
         self.state_manager = state_manager
+        self.save_message_timer = 0
         self.buttons = [
-            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2, 300, 60, "Continue", self.continue_game),
-            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+80, 300, 60, "Main Menu", self.main_menu)
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2-60, 300, 60, "Continue", self.continue_game),
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+20, 300, 60, "Save Game", self.save_game),
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+100, 300, 60, "Main Menu", self.main_menu)
         ]
 
     def continue_game(self) -> None:
@@ -33,7 +37,33 @@ class GameStatePaused(GameState):
                     button.action()
 
     def update(self) -> None:
-        pass
+        if self.save_message_timer > 0:
+            self.save_message_timer -= 1/CONFIG.fps #decrease by frame rate
+    
+    def save_game(self) -> None:
+        from game_states.play import GameStatePlay
+        #get current play state
+        current_play_state = None
+        for state in reversed(self.state_manager._states):
+            if isinstance(state, GameStatePlay):
+                current_play_state = state
+                break
+        
+        if current_play_state:
+            save_data = {
+                "level": current_play_state.level_num,
+                "player_x": current_play_state.level.player.rect.x,
+                "player_y": current_play_state.level.player.rect.y,
+                "gravity": current_play_state.level.player.gravity_direction
+            }
+            
+            try:
+                with open("saves/save.json", "w") as f:
+                    json.dump(save_data, f)
+                self.save_message_timer = 2.5
+                print("Game saved successfully!")
+            except Exception as e:
+                print(f"Save failed: {str(e)}")
 
     def draw(self, screen: pygame.Surface) -> None:
         overlay = pygame.Surface((CONFIG.WIDTH, CONFIG.HEIGHT), pygame.SRCALPHA)
@@ -47,5 +77,12 @@ class GameStatePaused(GameState):
         
         for button in self.buttons:
             button.draw(screen)
+        
+        if self.save_message_timer > 0:
+            font = pygame.freetype.SysFont('Arial', 24)
+            text_surf, text_rect = font.render("Game state saved!", COLORS["GREEN"])
+            text_rect.bottomright = (CONFIG.WIDTH - 20, CONFIG.HEIGHT - 20)
+            screen.blit(text_surf, text_rect)
+
         
         pygame.display.flip()

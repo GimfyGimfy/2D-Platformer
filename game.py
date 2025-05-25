@@ -24,7 +24,7 @@ def main():
         )
         #refresh all states
         for state in state_manager._states:
-            state.draw(screen)  #forcing redraw with new resolution
+            state.draw(screen) #forcing redraw with new resolution
 
     state_manager.set_resize_callback(handle_resize)
     
