@@ -13,12 +13,28 @@ if TYPE_CHECKING:
 class GameStateMenu(GameState):
     def __init__(self, state_manager: 'StateManager'):
         self.state_manager = state_manager
+        self.last_width = 0
+        self.last_height = 0
+        self.buttons = []
+        self._create_buttons()
+
+    def _create_buttons(self):
+        #store current dimensions
+        self.last_width = CONFIG.WIDTH
+        self.last_height = CONFIG.HEIGHT
+        
+        #create buttons centered based on current resolution
         self.buttons = [
             Button(CONFIG.WIDTH//2-150, 200, 300, 60, "Start Game", self.start_game),
             Button(CONFIG.WIDTH//2-150, 280, 300, 60, "Load Game", self.empty_function),
             Button(CONFIG.WIDTH//2-150, 360, 300, 60, "Settings", self.open_settings),
             Button(CONFIG.WIDTH//2-150, 440, 300, 60, "Quit", self.quit_game)
         ]
+
+    def update(self) -> None:
+        #recreate buttons if resolution changed
+        if CONFIG.WIDTH != self.last_width or CONFIG.HEIGHT != self.last_height:
+            self._create_buttons()
 
     def empty_function(self) -> None:
         """Placeholder function for buttons that don't do anything yet"""
@@ -35,6 +51,10 @@ class GameStateMenu(GameState):
     def quit_game(self) -> None:
         pygame.quit()
         sys.exit()
+    
+    def on_activate(self):
+
+        self._create_buttons()
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         mouse_pos = pygame.mouse.get_pos()
@@ -43,10 +63,7 @@ class GameStateMenu(GameState):
                 button.check_hover(mouse_pos)
                 if event.type == pygame.MOUSEBUTTONDOWN and button.is_hovered:
                     button.action()
-
-    def update(self) -> None:
-        pass
-
+                    
     def draw(self, screen: pygame.Surface) -> None:
         screen.fill(COLORS["MENU_BG"])
         font_large = pygame.freetype.SysFont('Arial', 60)

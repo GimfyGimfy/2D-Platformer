@@ -24,8 +24,20 @@ COLORS = {
 
 class GameConfig:
     def __init__(self):
-        self.WIDTH = 800
-        self.HEIGHT = 600
-        self.FPS = 60
+        self._width = 800
+        self._height = 600
+        self.fps = 60
+        
+    @property
+    def WIDTH(self):
+        return self._width
+        
+    @property
+    def HEIGHT(self):
+        return self._height
+        
+    def set_resolution(self, width: int, height: int):
+        self._width = width
+        self._height = height
 
 CONFIG = GameConfig()

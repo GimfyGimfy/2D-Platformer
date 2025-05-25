@@ -2,27 +2,13 @@ import pygame
 from typing import List
 from game_states.base import GameState
 from ui.button import Button
-from constants import CONFIG
-# doesn't work yet properly
+from constants import CONFIG, COLORS
+
 class GameStateSettings(GameState):
     def __init__(self, state_manager):
+        super().__init__()
         self.state_manager = state_manager
-        self.buttons = [
-            Button(CONFIG.WIDTH//2-150, 200, 300, 60, 
-                  "800x600", lambda: self.set_resolution(800, 600)),
-            Button(CONFIG.WIDTH//2-150, 280, 300, 60, 
-                  "1024x768", lambda: self.set_resolution(1024, 768)),
-            Button(CONFIG.WIDTH//2-150, 360, 300, 60, 
-                  "Back", self.state_manager.pop_state)
-        ]
-
-    def set_resolution(self, width: int, height: int):
-        CONFIG.WIDTH = width
-        CONFIG.HEIGHT = height
-        #notify main game to resize window
-        if hasattr(self.state_manager, 'on_resize'):
-            self.state_manager.on_resize()
-        self.state_manager.pop_state()
+        self._create_buttons()
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         mouse_pos = pygame.mouse.get_pos()
@@ -32,15 +18,69 @@ class GameStateSettings(GameState):
                 if event.type == pygame.MOUSEBUTTONDOWN and button.is_hovered:
                     button.action()
 
-    def update(self):
-        pass
+    def update(self) -> None:
+        pass  #no updates needed for settings menu
 
     def draw(self, screen: pygame.Surface) -> None:
-        screen.fill((30, 30, 50))
+        screen.fill(COLORS["MENU_BG"])
         font = pygame.freetype.SysFont('Arial', 60)
-        text_surf, text_rect = font.render("Settings", (255, 255, 255))
+        text_surf, text_rect = font.render("Settings", COLORS["WHITE"])
         text_rect.center = (CONFIG.WIDTH//2, 100)
         screen.blit(text_surf, text_rect)
+        
         for button in self.buttons:
             button.draw(screen)
+        
         pygame.display.flip()
+
+    def _create_buttons(self):
+        button_height = 60
+        button_spacing = 20
+        total_height = (5 * button_height) + (4 * button_spacing)
+        start_y = (CONFIG.HEIGHT - total_height) // 2 + 40
+        self.buttons = [
+            Button(
+                CONFIG.WIDTH//2 - 150,
+                start_y,
+                300, button_height,
+                "800x600", 
+                lambda: self.set_resolution(800, 600)
+            ),
+            Button(
+                CONFIG.WIDTH//2 - 150,
+                start_y + button_height + button_spacing,
+                300, button_height,
+                "1024x768", 
+                lambda: self.set_resolution(1024, 768)
+            ),
+            Button(
+                CONFIG.WIDTH//2 - 150,
+                start_y + 2*(button_height + button_spacing),
+                300, button_height,
+                "1280x720", 
+                lambda: self.set_resolution(1280, 720)
+            ),
+            Button(
+                CONFIG.WIDTH//2 - 150,
+                start_y + 3*(button_height + button_spacing),
+                300, button_height,
+                "1920x1080", 
+                lambda: self.set_resolution(1920, 1080)
+            ),
+            Button(
+                CONFIG.WIDTH//2 - 150,
+                start_y + 4*(button_height + button_spacing),
+                300, button_height,
+                "Back", 
+                self.go_back
+            )
+        ]
+
+    def set_resolution(self, width: int, height: int):
+        CONFIG.set_resolution(width, height)
+        if self.state_manager.resize_callback:
+            self.state_manager.resize_callback()
+        self._create_buttons()
+
+    def go_back(self):
+        self.state_manager.pop_state()

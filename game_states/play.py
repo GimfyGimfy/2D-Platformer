@@ -87,7 +87,7 @@ class GameStatePlay(GameState):
         player = self.level.player
         current_level = self.level_num
         
-        # Define instructions and game info
+        #defining instructions and game info
         instructions = [
             f"Level: {current_level}",
             "A & D: Move left and right",
@@ -115,11 +115,11 @@ class GameStatePlay(GameState):
             sign = self.level.active_sign
             font = pygame.freetype.SysFont('Arial', 24)
             
-            # Calculate screen position relative to camera
+            #calculating screen position relative to camera
             sign_screen_x = sign.rect.x - self.camera[0]
-            sign_screen_y = sign.rect.y - self.camera[1] - 40  # Position above sign
+            sign_screen_y = sign.rect.y - self.camera[1] - 40  #position above sign
             
-            # Text background
+            #text background
             text_surf, text_rect = font.render(sign.message, COLORS["WHITE"])
             bg_rect = text_rect.inflate(20, 10)
             bg_rect.center = (sign_screen_x + sign.rect.width//2, sign_screen_y)

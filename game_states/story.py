@@ -69,18 +69,13 @@ class GameStateStory(GameState):
                         self.current_page += 1
                         self.alpha = 0
                         if self.current_page >= len(self.story_pages):
-                            self.active = False
-                            if self.show_menu_after:
+                            self.state_manager.pop_state()
+                            if self.target_level == 0:  #intro story
                                 from game_states.menu import GameStateMenu
                                 self.state_manager.push_state(GameStateMenu(self.state_manager))
-                            else:
-                                self.state_manager.pop_state()
+                            else:  #level stories
                                 from game_states.play import GameStatePlay
                                 self.state_manager.push_state(GameStatePlay(self.state_manager, self.target_level))
-                elif event.key == pygame.K_ESCAPE:
-                    self.state_manager.push_state(
-                        self.state_manager.menu_state
-                    )
 
     def update(self) -> None:
         if self.alpha < 255:
