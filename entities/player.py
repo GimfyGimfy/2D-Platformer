@@ -15,6 +15,7 @@ class Player(GameObject):
         self.current_speed = PLAYER_SPEED
         self.is_sprinting = False
         self.reset_cooldown = 0
+        self.just_flipped = False
 
     #movement stuff
 
@@ -66,9 +67,12 @@ class Player(GameObject):
             self.velocity_y = 0
             self.charged = False
             self.image.fill(COLORS["WHITE"])
+            self.just_flipped = True
 
     def reset_position(self) -> None:
-        self.rect.midbottom = (415,300) #fixed bugs with restarting in wrong spot
+        self.rect.midbottom = (415,300)
         self.velocity_y = 0
         self.gravity_direction = 1
         self.reset_cooldown = 2
+    def reset_flip_flag(self) -> None:
+        self.just_flipped = False

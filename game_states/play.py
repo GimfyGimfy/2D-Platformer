@@ -1,5 +1,8 @@
 # play.py
 import pygame
+from pygame.math import Vector2
+import random
+from entities.speedlines import Speedline
 from typing import List
 from game_states.base import GameState
 from game_states.paused import GameStatePaused
@@ -20,6 +23,7 @@ class GameStatePlay(GameState):
         self.camera = (0, 0)
         self.background = pygame.image.load(BG_IMAGE_PATH).convert()
         self.background = pygame.transform.scale(self.background,(CONFIG.WIDTH,CONFIG.HEIGHT))
+        self.speed_lines = pygame.sprite.Group()
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         for event in events:
@@ -53,6 +57,31 @@ class GameStatePlay(GameState):
         self.level.player.apply_physics(self.level.platforms)
         CollisionSystem.handle_collisions(self.level.player, self.level, self.state_manager)
         self.level.orbs.update()
+        if self.level.player.just_flipped:
+            self._create_speedlines()
+            self.level.player.reset_flip_flag()
+
+        self.speed_lines.update()
+        
+    def _create_speedlines(self) -> None:
+        direction = Vector2(0, self.level.player.gravity_direction)
+        camera_left = self.camera[0]
+        camera_right = self.camera[0] + CONFIG.WIDTH
+        player_y = self.level.player.rect.centery
+
+        #create lines across the entire visible width
+        for _ in range(random.randint(30, 40)):
+            x = random.randint(camera_left, camera_right)
+            y = player_y + random.randint(-200, 200) #vertical spread
+            
+            #random horizontal offset
+            offset = Vector2(
+                random.randint(-50, 50),
+                random.randint(-100, 100)
+            )
+            pos = Vector2(x, y) + offset
+            
+            self.speed_lines.add(Speedline(pos, direction))
 
     def _handle_horizontal_collision(self) -> None:
         for platform in self.level.platforms:
@@ -79,6 +108,12 @@ class GameStatePlay(GameState):
             screen_y = sprite.rect.y - self.camera[1]
             if -30 < screen_x < CONFIG.WIDTH + 30 and -30 < screen_y < CONFIG.HEIGHT + 30:
                 screen.blit(sprite.image, (screen_x, screen_y))
+        
+        for line in self.speed_lines:
+            line.offset.update(self.camera)
+            screen.blit(line.image, 
+                       (line.rect.x - line.offset.x, 
+                        line.rect.y - line.offset.y))
         
         self._draw_ui(screen)
         pygame.display.flip()

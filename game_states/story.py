@@ -2,6 +2,7 @@ import pygame
 from typing import List
 from game_states.base import GameState
 from constants import CONFIG, COLORS
+from ui.button import Button
 
 class GameStateStory(GameState):
     def __init__(self, state_manager, target_level: int, show_menu_after: bool = False):
@@ -55,11 +56,32 @@ class GameStateStory(GameState):
         }
         self.story_pages=self.stories.get(target_level,[])
         self.active=bool(self.story_pages) #activate only if we have story pages
+        self.skip_button = Button(
+            CONFIG.WIDTH - 120, 20, 100, 30, #right top corner
+            "Skip", self.skip_story,
+            text_color=COLORS["WHITE"],
+            bg_color=COLORS["BLACK"],
+            hover_color=COLORS["TRANSPARENT_ACCENT"]
+        )
+    
+    def skip_story(self):
+        self.active = False
+        self.state_manager.pop_state()
+        if self.target_level == 0:
+            from game_states.menu import GameStateMenu
+            self.state_manager.push_state(GameStateMenu(self.state_manager))
+        else:
+            from game_states.play import GameStatePlay
+            self.state_manager.push_state(GameStatePlay(self.state_manager, self.target_level))
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
+        mouse_pos = pygame.mouse.get_pos()
+        self.skip_button.check_hover(mouse_pos)
         if not self.active:
             return
         for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and self.skip_button.is_hovered:
+                self.skip_button.action()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
                     if self.alpha < 255:
@@ -78,6 +100,8 @@ class GameStateStory(GameState):
                                 self.state_manager.push_state(GameStatePlay(self.state_manager, self.target_level))
 
     def update(self) -> None:
+        self.skip_button.rect.x = CONFIG.WIDTH - 120
+        self.skip_button.rect.y = 20
         if self.alpha < 255:
             self.alpha = min(255, self.alpha + self.fade_speed)
 
@@ -114,5 +138,7 @@ class GameStateStory(GameState):
                 center=(CONFIG.WIDTH//2, CONFIG.HEIGHT - 50)
             )
             screen.blit(prompt_surf, prompt_rect)
+        
+        self.skip_button.draw(screen)
         
         pygame.display.flip()

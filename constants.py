@@ -10,6 +10,7 @@ BG_IMAGE_PATH="assets/images/background.png"
 COLORS = {
     "WHITE": (255, 255, 255),
     "BLACK": (0, 0, 0),
+    "TRANSPARENT_ACCENT": (54,54,54, 30),
     "RED": (255, 0, 0),
     "GREEN": (0, 255, 0),
     "BLUE": (0, 0, 255),
