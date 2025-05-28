@@ -19,7 +19,7 @@ COLORS = {
     "grid": (50, 50, 50)
 }
 
-LEVEL_FILENAME = "level1.txt"
+LEVEL_FILENAME = "New_Level.txt"
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
