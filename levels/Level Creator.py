@@ -12,14 +12,14 @@ COLORS = {
     "platform": (150, 150, 150),
     "spike": (255, 0, 0),
     "orb": (0, 255, 255),
-    "teleport": (0, 0, 139),  # <- Zmienione z "teleporter"
+    "teleport": (0, 0, 139),
     "sign": (255, 255, 0),
     "player": (0, 255, 0),
     "background": (30, 30, 30),
     "grid": (50, 50, 50)
 }
 
-LEVEL_FILENAME = "New_Level.txt"
+LEVEL_FILENAME = "level1.txt"
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -33,9 +33,8 @@ font = pygame.font.SysFont(None, 24)
 half_width = GRID_WIDTH // 2
 half_height = GRID_HEIGHT // 2
 
-# Do trzymania klawiszy
-key_repeat_delay = 250  # ms
-key_repeat_interval = 50  # ms
+key_repeat_delay = 250
+key_repeat_interval = 50
 pygame.key.set_repeat(key_repeat_delay, key_repeat_interval)
 
 def load_level():
