@@ -18,7 +18,7 @@ class CollisionSystem: #check for touching objects
             player.reset_position()
 
         for orb in pygame.sprite.spritecollide(player, level.orbs, False):
-            if orb.active:
+            if orb.active and player.charged == False:
                 orb.deactivate()
                 player.charged = True
                 player.image.fill(COLORS["GREEN"])
