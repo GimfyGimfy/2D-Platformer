@@ -29,6 +29,8 @@ class GameStatePlay(GameState):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.level.player.flip_gravity()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_l:
+                    self.level.player.flip_gravity()
                 if event.key == pygame.K_SPACE:
                     self.level.player.jump()
                 if event.key == pygame.K_r:
@@ -127,7 +129,7 @@ class GameStatePlay(GameState):
             "A & D: Move left and right",
             "Space: Jump",
             "Shift: Sprint",
-            "Left Click: Flip Gravity",
+            "Left Click / L: Flip Gravity",
             "R: Reset Position",
             "ESC: Pause Game",
             f"Gravity-Flip ready: {player.charged}"
