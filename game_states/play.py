@@ -16,16 +16,18 @@ if TYPE_CHECKING:
 
 class GameStatePlay(GameState):
     def __init__(self, state_manager: 'StateManager', level_num: int = 1):
+        self.cached_zoom = None
+        self.cached_scaled_bg = None
         self.state_manager = state_manager
         self.level_num = level_num
         self.level = LevelLoader.load(level_num)
         self.camera = (0, 0)
         self.background = pygame.image.load(BG_IMAGE_PATH).convert()
-        self.original_bg = self.background.copy()  # Store original for scaling
+        self.original_bg = self.background.copy() #store original for scaling
         self.speed_lines = pygame.sprite.Group()
-        self.zoom = 1.0  # Default zoom level
-        self.min_zoom = 0.5  # Max zoom out (see more of the level)
-        self.max_zoom = 2.0  # Max zoom in
+        self.zoom = 1.0 #default zoom level
+        self.min_zoom = 0.5 #max zoom out (to see more of the level)
+        self.max_zoom = 2.0 #max zoom in
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         for event in events:
@@ -112,19 +114,29 @@ class GameStatePlay(GameState):
         #create a surface to render the zoomed view
         zoom_surface = pygame.Surface((self.zoomed_width, self.zoomed_height))
         
-        #scale background to match zoomed view size
-        scaled_bg = pygame.transform.scale(self.original_bg, (int(self.zoomed_width), int(self.zoomed_height)))
-        
-        #background with parallax effect
+        if self.zoom != self.cached_zoom or not self.cached_scaled_bg:
+            #only scale background when zoom changes
+            bg_width = max(1, int(self.original_bg.get_width() * self.zoom))
+            bg_height = max(1, int(self.original_bg.get_height() * self.zoom))
+            self.cached_scaled_bg = pygame.transform.scale(self.original_bg, (bg_width, bg_height))
+            self.cached_zoom = self.zoom
+
+        tile = self.cached_scaled_bg
+        tile_width = tile.get_width()
+        tile_height = tile.get_height()
         parallax_offset = -self.camera[0] * 0.5
-        bg_width = scaled_bg.get_width()
-        bg_height = scaled_bg.get_height()
-        
-        #draw tiled background to cover the entire zoom surface
-        for i in range(-1, 3):
-            x = (parallax_offset % bg_width) + i * bg_width - bg_width
-            zoom_surface.blit(scaled_bg, (x, 0))
-        
+
+        #drawing background logic
+        x_start = parallax_offset % tile_width - tile_width
+        y_start = 0
+        x = x_start
+        while x < self.zoomed_width:
+            y = y_start
+            while y < self.zoomed_height:
+                zoom_surface.blit(tile, (x, y))
+                y += tile_height
+            x += tile_width        
+            
         #draw all sprites on the zoom surface
         for sprite in self.level.all_sprites:
             screen_x = sprite.rect.x - self.camera[0]
@@ -160,7 +172,7 @@ class GameStatePlay(GameState):
             "R: Reset Position",
             "ESC: Pause Game",
             f"Gravity-Flip ready: {player.charged}",
-            f"Zoom: {self.zoom:.1f}x (Z/C to adjust)"  # Show current zoom level
+            f"Zoom: {self.zoom:.1f}x (Z/C to adjust)" #show current zoom level
         ]
 
         font_small = pygame.freetype.SysFont('Arial', 20)
@@ -180,7 +192,7 @@ class GameStatePlay(GameState):
             sign = self.level.active_sign
             font = pygame.freetype.SysFont('Arial', 24)
             
-            # Calculate sign position in screen coordinates
+            #calculate sign position in screen coordinates
             sign_screen_x = (sign.rect.x - self.camera[0]) * self.zoom
             sign_screen_y = (sign.rect.y - self.camera[1] - 40) * self.zoom
             
