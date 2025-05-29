@@ -8,6 +8,11 @@ from game_states.menu import GameStateMenu
 def main():
     pygame.init()
     
+    #movement variables
+    move_direction = [0, 0]  # [x_movement, y_movement]
+    move_speed = 0.2  # Seconds between moves when key is held
+    last_move_time = 0  # Track time of last movement
+    
     #screen initialisation with current config
     screen = pygame.display.set_mode((CONFIG.WIDTH, CONFIG.HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption("Gravity Platformer")

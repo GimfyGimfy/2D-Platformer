@@ -54,6 +54,8 @@ class GameStatePaused(GameState):
                 "level": current_play_state.level_num,
                 "player_x": current_play_state.level.player.rect.x,
                 "player_y": current_play_state.level.player.rect.y,
+                "reset_x": current_play_state.level.player.reset_x,
+                "reset_y": current_play_state.level.player.reset_y,
                 "gravity": current_play_state.level.player.gravity_direction
             }
             

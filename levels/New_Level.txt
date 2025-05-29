@@ -346,3 +346,5 @@ sign,40,19
 sign,67,3
 sign,80,3
 teleport,87,4
+platform,0,1
+spike,1,1

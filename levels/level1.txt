@@ -4,6 +4,7 @@ platform,4,20
 platform,8,20
 platform,0,20
 platform,0,-1
+checkpoint,1,1
 platform,-1,-1
 platform,-2,-1
 platform,-3,-1
@@ -11,6 +12,7 @@ platform,-4,-1
 platform,-5,-1
 platform,-6,-1
 platform,-7,-1
+checkpoint,5,1
 platform,-8,-1
 platform,-8,0
 platform,-8,1
@@ -339,10 +341,10 @@ platform,89,3
 platform,88,2
 platform,89,11
 platform,89,15
+teleport,87,4,2
 sign,4,0,Nacisnij SPACJE zeby skoczyc!
 sign,12,3,Przytrzymaj SHIFT zeby szybciej biec!
 sign,31,3,Nacisnij LEWY PRZYCISK MYSZY lub L zeby odwrocic grawitacje!
-sign,40,19,Teraz sprobuj przeskoczyc przeszkody przy odwroconej grawitacji!
-sign,67,3,Zebranie niebieskiego orba pozwala ponownie odwrocic grawitacje w locie!
-sign,80,3,Swietna robota! Wiesz juz wszystko co bedzie Ci potrzebne do gry! Powodzenia!
-teleport,87,4,2
+sign,40,19,Teraz sprobuj przeskoczyc przez przeszkody przy odwroconej grawitacji!
+sign,67,3,Zebranie niebieskiego krysztalu w locie pozwoli Ci ponownie odwrocic grawitacje podczas lotu!
+sign,80,3,Swietna robota! Teraz wiesz juz wszystko co bedzie Ci potrzebne do gry! Powodzenia!

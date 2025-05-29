@@ -67,8 +67,8 @@ class GameStateMenu(GameState):
             from game_states.play import GameStatePlay
             play_state = GameStatePlay(self.state_manager, save_data["level"])
             play_state.level.player.set_position(save_data["player_x"], save_data["player_y"])
+            play_state.level.player.set_reset_position(save_data["reset_x"], save_data["reset_y"])
             play_state.level.player.gravity_direction = save_data.get("gravity", 1)
-            
             self.state_manager.push_state(play_state)
             
         except Exception as e:

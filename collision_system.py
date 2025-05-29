@@ -1,5 +1,6 @@
 import pygame
 from entities.player import Player
+from entities.checkpoint import Checkpoint
 from level import Level
 from game_states.state_manager import StateManager
 from constants import COLORS
@@ -28,3 +29,15 @@ class CollisionSystem: #check for touching objects
             if distance < sign.detection_radius:
                 level.active_sign = sign
                 break
+        for checkpoint in pygame.sprite.spritecollide(player, level.checkpoints, False):
+            if checkpoint.active:
+                checkpoint.deactivate()
+                
+                #deactivate previous checkpoint
+                if level.active_checkpoint:
+                    level.active_checkpoint.active = True
+                    level.active_checkpoint.image.fill(COLORS["GREEN"])
+                
+                #set new checkpoint
+                level.active_checkpoint = checkpoint
+                player.set_reset_position(checkpoint.rect.x, checkpoint.rect.y)

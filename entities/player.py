@@ -16,6 +16,8 @@ class Player(GameObject):
         self.is_sprinting = False
         self.reset_cooldown = 0
         self.just_flipped = False
+        self.reset_x = x
+        self.reset_y = y
 
     #movement stuff
 
@@ -73,10 +75,14 @@ class Player(GameObject):
         self.rect.x = x
         self.rect.y = y
 
-    def reset_position(self) -> None:
-        self.rect.midbottom = (415,300)
+    def set_reset_position(self, x: int, y: int):
+        self.reset_x = x
+        self.reset_y = y
+
+    def reset_position(self):
+        self.rect.x = self.reset_x
+        self.rect.y = self.reset_y
         self.velocity_y = 0
-        self.gravity_direction = 1
-        self.reset_cooldown = 2
+
     def reset_flip_flag(self) -> None:
         self.just_flipped = False

@@ -6,6 +6,7 @@ from entities.teleporters import Teleporter
 from entities.orbs import Orb
 from entities.signs import Sign
 from entities.player import Player
+from entities.checkpoint import Checkpoint
 
 class Level:
     def __init__(self):
@@ -16,6 +17,8 @@ class Level:
         self.orbs = pygame.sprite.Group()
         self.signs = pygame.sprite.Group()
         self.player = None
+        self.checkpoints = pygame.sprite.Group()
+        self.active_checkpoint = None
 
 class LevelLoader: #load levels from file
     @staticmethod
@@ -52,6 +55,10 @@ class LevelLoader: #load levels from file
                         sign = Sign(x, y, message)
                         level.signs.add(sign)
                         level.all_sprites.add(sign)
+                    elif obj_type == 'checkpoint':
+                        checkpoint = Checkpoint(x, y)
+                        level.checkpoints.add(checkpoint)
+                        level.all_sprites.add(checkpoint)
         except FileNotFoundError:
             print(f"Level {level_num} not found!")
             return LevelLoader.load(1)
