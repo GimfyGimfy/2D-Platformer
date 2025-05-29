@@ -21,8 +21,11 @@ class GameStatePlay(GameState):
         self.level = LevelLoader.load(level_num)
         self.camera = (0, 0)
         self.background = pygame.image.load(BG_IMAGE_PATH).convert()
-        self.background = pygame.transform.scale(self.background,(CONFIG.WIDTH,CONFIG.HEIGHT))
+        self.original_bg = self.background.copy()  # Store original for scaling
         self.speed_lines = pygame.sprite.Group()
+        self.zoom = 1.0  # Default zoom level
+        self.min_zoom = 0.5  # Max zoom out (see more of the level)
+        self.max_zoom = 2.0  # Max zoom in
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         for event in events:
@@ -37,6 +40,11 @@ class GameStatePlay(GameState):
                     self.level.player.reset_position()
                 if event.key == pygame.K_ESCAPE:
                     self.state_manager.push_state(GameStatePaused(self.state_manager))
+                # Zoom controls
+                if event.key == pygame.K_z:
+                    self.zoom = max(self.min_zoom, self.zoom - 0.1)  # Zoom out
+                if event.key == pygame.K_c:
+                    self.zoom = min(self.max_zoom, self.zoom + 0.1)  # Zoom in
 
     def update(self) -> None:
         keys = pygame.key.get_pressed()
@@ -66,8 +74,8 @@ class GameStatePlay(GameState):
         
     def _create_speedlines(self) -> None:
         direction = Vector2(0, self.level.player.gravity_direction)
-        camera_left = self.camera[0]
-        camera_right = self.camera[0] + CONFIG.WIDTH
+        camera_left = int(self.camera[0])
+        camera_right = int(self.camera[0] + self.zoomed_width)
         player_y = self.level.player.rect.centery
 
         #create lines across the entire visible width
@@ -92,34 +100,53 @@ class GameStatePlay(GameState):
                 else:
                     self.level.player.rect.left = platform.rect.right
 
-    def draw(self, screen: pygame.Surface) -> None: #drawing the game
+    def draw(self, screen: pygame.Surface) -> None:
+        #calculate camera position with zoom
+        self.zoomed_width = CONFIG.WIDTH / self.zoom
+        self.zoomed_height = CONFIG.HEIGHT / self.zoom
         self.camera = (
-            self.level.player.rect.centerx - CONFIG.WIDTH // 2,
-            self.level.player.rect.centery - CONFIG.HEIGHT // 2
-        ) #create camera with offset
-        parallax_offset = -self.camera[0] * 0.5 #background parallax effect (scrolling at half speed of camera)
-        bg_width = self.background.get_width()
-
-        for i in range(-1, CONFIG.WIDTH // bg_width + 3):
-            x = (parallax_offset % bg_width) + i * bg_width - bg_width
-            screen.blit(self.background, (x, 0))
+            self.level.player.rect.centerx - self.zoomed_width // 2,
+            self.level.player.rect.centery - self.zoomed_height // 2
+        )
         
-        for sprite in self.level.all_sprites: #drawing all the sprites on the screen
+        #create a surface to render the zoomed view
+        zoom_surface = pygame.Surface((self.zoomed_width, self.zoomed_height))
+        
+        #scale background to match zoomed view size
+        scaled_bg = pygame.transform.scale(self.original_bg, (int(self.zoomed_width), int(self.zoomed_height)))
+        
+        #background with parallax effect
+        parallax_offset = -self.camera[0] * 0.5
+        bg_width = scaled_bg.get_width()
+        bg_height = scaled_bg.get_height()
+        
+        #draw tiled background to cover the entire zoom surface
+        for i in range(-1, 3):
+            x = (parallax_offset % bg_width) + i * bg_width - bg_width
+            zoom_surface.blit(scaled_bg, (x, 0))
+        
+        #draw all sprites on the zoom surface
+        for sprite in self.level.all_sprites:
             screen_x = sprite.rect.x - self.camera[0]
             screen_y = sprite.rect.y - self.camera[1]
-            if -30 < screen_x < CONFIG.WIDTH + 30 and -30 < screen_y < CONFIG.HEIGHT + 30:
-                screen.blit(sprite.image, (screen_x, screen_y))
+            if -sprite.rect.width < screen_x < self.zoomed_width and -sprite.rect.height < screen_y < self.zoomed_height:
+                zoom_surface.blit(sprite.image, (screen_x, screen_y))
         
+        #draw speedlines
         for line in self.speed_lines:
             line.offset.update(self.camera)
-            screen.blit(line.image, 
-                       (line.rect.x - line.offset.x, 
-                        line.rect.y - line.offset.y))
+            screen_x = line.rect.x - self.camera[0]
+            screen_y = line.rect.y - self.camera[1]
+            zoom_surface.blit(line.image, (screen_x, screen_y))
+        
+        #scale the zoom surface to the screen size
+        scaled_zoom = pygame.transform.scale(zoom_surface, (CONFIG.WIDTH, CONFIG.HEIGHT))
+        screen.blit(scaled_zoom, (0, 0))
         
         self._draw_ui(screen)
         pygame.display.flip()
 
-    def _draw_ui(self, screen: pygame.Surface) -> None: #stuff in the top left corner
+    def _draw_ui(self, screen: pygame.Surface) -> None:
         player = self.level.player
         current_level = self.level_num
         
@@ -132,7 +159,8 @@ class GameStatePlay(GameState):
             "Left Click / L: Flip Gravity",
             "R: Reset Position",
             "ESC: Pause Game",
-            f"Gravity-Flip ready: {player.charged}"
+            f"Gravity-Flip ready: {player.charged}",
+            f"Zoom: {self.zoom:.1f}x (Z/C to adjust)"  # Show current zoom level
         ]
 
         font_small = pygame.freetype.SysFont('Arial', 20)
@@ -147,18 +175,18 @@ class GameStatePlay(GameState):
         for i, text in enumerate(instructions):
             text_surf, _ = font_small.render(text, COLORS["WHITE"])
             screen.blit(text_surf, (start_x, start_y + i * line_height))
+            
         if self.level.active_sign:
             sign = self.level.active_sign
             font = pygame.freetype.SysFont('Arial', 24)
             
-            #calculating screen position relative to camera
-            sign_screen_x = sign.rect.x - self.camera[0]
-            sign_screen_y = sign.rect.y - self.camera[1] - 40  #position above sign
+            # Calculate sign position in screen coordinates
+            sign_screen_x = (sign.rect.x - self.camera[0]) * self.zoom
+            sign_screen_y = (sign.rect.y - self.camera[1] - 40) * self.zoom
             
-            #text background
             text_surf, text_rect = font.render(sign.message, COLORS["WHITE"])
             bg_rect = text_rect.inflate(20, 10)
-            bg_rect.center = (sign_screen_x + sign.rect.width//2, sign_screen_y)
+            bg_rect.center = (sign_screen_x, sign_screen_y)
             
             pygame.draw.rect(screen, COLORS["BLACK"], bg_rect)
             pygame.draw.rect(screen, COLORS["WHITE"], bg_rect, 2)

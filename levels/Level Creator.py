@@ -33,9 +33,25 @@ font = pygame.font.SysFont(None, 24)
 half_width = GRID_WIDTH // 2
 half_height = GRID_HEIGHT // 2
 
-key_repeat_delay = 250
-key_repeat_interval = 50
-pygame.key.set_repeat(key_repeat_delay, key_repeat_interval)
+#key state tracking
+key_states = {
+    pygame.K_LEFT: False,
+    pygame.K_RIGHT: False,
+    pygame.K_UP: False,
+    pygame.K_DOWN: False,
+    pygame.K_z: False,
+    pygame.K_x: False,
+    pygame.K_c: False,
+    pygame.K_v: False,
+    pygame.K_b: False,
+    pygame.K_e: False
+}
+
+#timers for continuous actions
+move_timer = 0
+block_timer = 0
+move_delay = 100 #ms between movement repeats
+block_delay = 100 #ms between block placement repeats
 
 def load_level():
     if not os.path.exists(LEVEL_FILENAME):
@@ -59,7 +75,6 @@ def load_level():
             except ValueError:
                 print(f"Niepoprawne współrzędne w linii: {line}")
                 continue
-            # Konwersja starych danych
             if etype == "teleporter":
                 etype = "teleport"
             loaded_elements[(px, py)] = etype
@@ -103,12 +118,50 @@ elements = load_level()
 
 running = True
 while running:
+    dt = clock.tick(60)
+    move_timer += dt
+    block_timer += dt
+    
     screen.fill(COLORS["background"])
     draw_elements()
     draw_grid()
     draw_player()
     draw_ui()
     pygame.display.flip()
+
+    #handle movement with key repeat
+    if move_timer >= move_delay:
+        if key_states[pygame.K_LEFT]:
+            x -= 1
+        if key_states[pygame.K_RIGHT]:
+            x += 1
+        if key_states[pygame.K_UP]:
+            y += 1
+        if key_states[pygame.K_DOWN]:
+            y -= 1
+        move_timer = 0
+
+    #handle block placement with key repeat
+    if block_timer >= block_delay:
+        if key_states[pygame.K_z]:
+            if (x, y) not in elements:
+                elements[(x, y)] = "platform"
+        if key_states[pygame.K_x]:
+            if (x, y) not in elements:
+                elements[(x, y)] = "spike"
+        if key_states[pygame.K_c]:
+            if (x, y) not in elements:
+                elements[(x, y)] = "orb"
+        if key_states[pygame.K_v]:
+            if (x, y) not in elements:
+                elements[(x, y)] = "teleport"
+        if key_states[pygame.K_b]:
+            if (x, y) not in elements:
+                elements[(x, y)] = "sign"
+        if key_states[pygame.K_e]:
+            if (x, y) in elements:
+                elements.pop((x, y))
+        block_timer = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -119,54 +172,42 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 save_level()
                 running = False
+            
+            #update key states
+            if event.key in key_states:
+                key_states[event.key] = True
+                
+                #handle initial key press immediately
+                if event.key == pygame.K_LEFT:
+                    x -= 1
+                elif event.key == pygame.K_RIGHT:
+                    x += 1
+                elif event.key == pygame.K_UP:
+                    y += 1
+                elif event.key == pygame.K_DOWN:
+                    y -= 1
+                elif event.key == pygame.K_z:
+                    if (x, y) not in elements:
+                        elements[(x, y)] = "platform"
+                elif event.key == pygame.K_x:
+                    if (x, y) not in elements:
+                        elements[(x, y)] = "spike"
+                elif event.key == pygame.K_c:
+                    if (x, y) not in elements:
+                        elements[(x, y)] = "orb"
+                elif event.key == pygame.K_v:
+                    if (x, y) not in elements:
+                        elements[(x, y)] = "teleport"
+                elif event.key == pygame.K_b:
+                    if (x, y) not in elements:
+                        elements[(x, y)] = "sign"
+                elif event.key == pygame.K_e:
+                    if (x, y) in elements:
+                        elements.pop((x, y))
 
-            elif event.key == pygame.K_LEFT:
-                x -= 1
-            elif event.key == pygame.K_RIGHT:
-                x += 1
-            elif event.key == pygame.K_UP:
-                y += 1
-            elif event.key == pygame.K_DOWN:
-                y -= 1
-
-            elif event.key == pygame.K_z:
-                if (x, y) not in elements:
-                    elements[(x, y)] = "platform"
-                else:
-                    print(f"W tym miejscu jest już: {elements[(x, y)]}")
-
-            elif event.key == pygame.K_x:
-                if (x, y) not in elements:
-                    elements[(x, y)] = "spike"
-                else:
-                    print(f"W tym miejscu jest już: {elements[(x, y)]}")
-
-            elif event.key == pygame.K_c:
-                if (x, y) not in elements:
-                    elements[(x, y)] = "orb"
-                else:
-                    print(f"W tym miejscu jest już: {elements[(x, y)]}")
-
-            elif event.key == pygame.K_v:
-                if (x, y) not in elements:
-                    elements[(x, y)] = "teleport"
-                else:
-                    print(f"W tym miejscu jest już: {elements[(x, y)]}")
-
-            elif event.key == pygame.K_b:
-                if (x, y) not in elements:
-                    elements[(x, y)] = "sign"
-                else:
-                    print(f"W tym miejscu jest już: {elements[(x, y)]}")
-
-            elif event.key == pygame.K_e:
-                if (x, y) in elements:
-                    removed = elements.pop((x, y))
-                    print(f"Usunięto element '{removed}' z pozycji ({x}, {y})")
-                else:
-                    print("Brak elementu do usunięcia na tej pozycji.")
-
-    clock.tick(60)
+        elif event.type == pygame.KEYUP:
+            if event.key in key_states:
+                key_states[event.key] = False
 
 pygame.quit()
 sys.exit()
