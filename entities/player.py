@@ -83,6 +83,7 @@ class Player(GameObject):
         self.rect.x = self.reset_x
         self.rect.y = self.reset_y
         self.velocity_y = 0
+        self.gravity_direction=1
 
     def reset_flip_flag(self) -> None:
         self.just_flipped = False

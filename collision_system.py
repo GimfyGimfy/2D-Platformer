@@ -3,7 +3,7 @@ from entities.player import Player
 from entities.checkpoint import Checkpoint
 from level import Level
 from game_states.state_manager import StateManager
-from constants import COLORS
+from constants import COLORS, NUM_LEVELS
 
 class CollisionSystem: #check for touching objects
     @staticmethod
@@ -11,9 +11,13 @@ class CollisionSystem: #check for touching objects
         teleporters = pygame.sprite.spritecollide(player, level.teleporters, False)
         if teleporters:
             teleporter=teleporters[0]
-            state_manager.pop_state()
             from game_states.story import GameStateStory
-            state_manager.push_state(GameStateStory(state_manager, teleporter.target_level))
+            if teleporter.target_level > NUM_LEVELS:
+                #trigger ending story
+                state_manager.push_state(GameStateStory(state_manager, 99))
+            else:
+                state_manager.pop_state()
+                state_manager.push_state(GameStateStory(state_manager, teleporter.target_level))
 
         if pygame.sprite.spritecollide(player, level.spikes, False):
             player.reset_position()

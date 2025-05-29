@@ -52,8 +52,18 @@ class GameStateStory(GameState):
                  "tested one last time..."],
                 ["The master orb glows",
                  "with intense power..."]
+            ],
+            99: [  #special ID for ending
+            ["THE END", "",
+             "Congratulations on completing",
+             "your gravity-iful journey!"],
+            ["You've restored balance",
+             "in the universe.",
+             "",
+             "Thank you for playing our game!"]
             ]
         }
+        
         self.story_pages=self.stories.get(target_level,[])
         self.active=bool(self.story_pages) #activate only if we have story pages
         self.skip_button = Button(
@@ -67,7 +77,7 @@ class GameStateStory(GameState):
     def skip_story(self):
         self.active = False
         self.state_manager.pop_state()
-        if self.target_level == 0:
+        if self.target_level == 0 or self.target_level == 99:
             from game_states.menu import GameStateMenu
             self.state_manager.push_state(GameStateMenu(self.state_manager))
         else:
@@ -92,7 +102,7 @@ class GameStateStory(GameState):
                         self.alpha = 0
                         if self.current_page >= len(self.story_pages):
                             self.state_manager.pop_state()
-                            if self.target_level == 0:  #intro story
+                            if self.target_level == 0 or self.target_level == 99: #intro story and ending
                                 from game_states.menu import GameStateMenu
                                 self.state_manager.push_state(GameStateMenu(self.state_manager))
                             else:  #level stories
