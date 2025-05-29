@@ -80,8 +80,7 @@ class Player(GameObject):
         self.reset_y = y
 
     def reset_position(self):
-        self.rect.x = self.reset_x
-        self.rect.y = self.reset_y
+        self.rect = self.image.get_rect(midbottom=(self.reset_x + 15, self.reset_y))
         self.velocity_y = 0
         self.gravity_direction=1
 

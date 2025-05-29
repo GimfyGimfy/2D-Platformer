@@ -9,6 +9,7 @@ SCREEN_WIDTH = GRID_WIDTH * TILE_SIZE
 SCREEN_HEIGHT = GRID_HEIGHT * TILE_SIZE
 
 COLORS = {
+    "checkpoint": (88,88,88),
     "platform": (150, 150, 150),
     "spike": (255, 0, 0),
     "orb": (0, 255, 255),
@@ -44,7 +45,8 @@ key_states = {
     pygame.K_c: False,
     pygame.K_v: False,
     pygame.K_b: False,
-    pygame.K_e: False
+    pygame.K_e: False,
+    pygame.K_n: False
 }
 
 #timers for continuous actions
@@ -158,6 +160,9 @@ while running:
         if key_states[pygame.K_b]:
             if (x, y) not in elements:
                 elements[(x, y)] = "sign"
+        if key_states[pygame.K_n]:
+            if (x, y) not in elements:
+                elements[(x, y)] = "checkpoint"
         if key_states[pygame.K_e]:
             if (x, y) in elements:
                 elements.pop((x, y))
@@ -201,6 +206,9 @@ while running:
                 elif event.key == pygame.K_b:
                     if (x, y) not in elements:
                         elements[(x, y)] = "sign"
+                elif event.key == pygame.K_n:
+                    if (x, y) not in elements:
+                        elements[(x, y)] = "checkpoint"
                 elif event.key == pygame.K_e:
                     if (x, y) in elements:
                         elements.pop((x, y))

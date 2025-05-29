@@ -53,6 +53,9 @@ class GameStateStory(GameState):
                 ["The master orb glows",
                  "with intense power..."]
             ],
+            4: [
+                [""]
+            ],
             99: [  #special ID for ending
             ["THE END", "",
              "Congratulations on completing",
