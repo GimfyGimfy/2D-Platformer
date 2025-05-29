@@ -190,16 +190,16 @@ class GameStatePlay(GameState):
             
         if self.level.active_sign:
             sign = self.level.active_sign
-            font = pygame.freetype.SysFont('Arial', 24)
+            scaled_font_size = max(12, int(24 * self.zoom))
+            font = pygame.freetype.SysFont('Arial', scaled_font_size)
             
-            #calculate sign position in screen coordinates
             sign_screen_x = (sign.rect.x - self.camera[0]) * self.zoom
             sign_screen_y = (sign.rect.y - self.camera[1] - 40) * self.zoom
             
             text_surf, text_rect = font.render(sign.message, COLORS["WHITE"])
-            bg_rect = text_rect.inflate(20, 10)
+            bg_rect = text_rect.inflate(int(20 * self.zoom), int(10 * self.zoom))
             bg_rect.center = (sign_screen_x, sign_screen_y)
             
             pygame.draw.rect(screen, COLORS["BLACK"], bg_rect)
-            pygame.draw.rect(screen, COLORS["WHITE"], bg_rect, 2)
-            screen.blit(text_surf, (bg_rect.x + 10, bg_rect.y + 5))
+            pygame.draw.rect(screen, COLORS["WHITE"], bg_rect, max(1, int(2 * self.zoom)))
+            screen.blit(text_surf, (bg_rect.x + int(10 * self.zoom), bg_rect.y + int(5 * self.zoom)))
