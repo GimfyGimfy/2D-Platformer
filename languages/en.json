@@ -1,0 +1,107 @@
+{
+    "ui": {
+        "continue": "Continue",
+        "save_game": "Save Game",
+        "main_menu": "Main Menu",
+        "start_game": "Start Game",
+        "load_game": "Load Game",
+        "settings": "Settings",
+        "quit": "Quit",
+        "back": "Back",
+        "skip": "Skip",
+        "settings_title": "Settings",
+        "resolution": "Resolution",
+        "language": "Language",
+        "english": "English",
+        "russian": "Russian",
+        "game_saved": "Game state saved!",
+        "paused": "PAUSED",
+        "press_z": "Press Z to continue",
+        "begin": "Press Z to begin"
+    },
+    "story": {
+        "level1": [
+		    "story_1_0",
+            "story_1_1",
+            "story_1_2"
+        ],
+        "level2": [
+		    "story_2_0",
+            "story_2_1"
+        ],
+        "level3": [
+			"story_3_0",
+            "story_3_1"
+        ],
+		"level4": [
+			"story_4_0",
+            "story_4_1"
+		],
+        "ending": [
+            "story_99_0",
+            "story_99_1"
+        ],
+        "story_1_0": [
+            "In a world where gravity bends",
+            "to the will of unknown,",
+            "a lone hero must navigate",
+            "the long journey of fate."
+        ],
+        "story_1_1": [
+            "Armed with the power to",
+            "reverse gravitational pull,",
+            "they journey through dangerous",
+            "realms to restore balance..."
+        ],
+        "story_1_2": [
+            "But beware! The path is",
+            "littered with dangers and",
+            "mysterious events that",
+            "lead to unknown dimensions."
+        ],
+        "story_2_0": [
+            "The first trial complete,",
+            "but greater challenges await..."
+        ],
+        "story_2_1": [
+            "The orbs hum with",
+            "increased energy now..."
+        ],
+        "story_3_0": [
+            "Halfway through the journey,",
+            "the laws of physics seem",
+            "to bend more strangely..."
+        ],
+        "story_3_1": [
+            "A strange energy pulses",
+            "from the teleporter..."
+        ],
+        "story_4_0": [
+            "The final challenge awaits!",
+            "All your skills will be",
+            "tested one last time..."
+        ],
+        "story_4_1": [
+            "The master orb glows",
+            "with intense power..."
+        ],
+        "story_99_0": [
+            "THE END", "",
+            "Congratulations on completing",
+            "your gravity-iful journey!"
+        ],
+        "story_99_1": [
+            "You've restored balance",
+            "in the universe.", "",
+            "Thank you for playing our game!"
+        ]
+    },
+	"signs": {
+        "tutorial_1": "Press Space to jump!",
+        "tutorial_2": "Sometimes you need to run using SHIFT. Be mindful of the spikes.",
+        "tutorial_3": "It's a checkpoint!",
+        "gravity_tip": "Try to flip your gravity. It recharges when you land on the ground.",
+        "teleporter_tip": "This will bring you closer to your goal!",
+        "orb_tip": "Orbs help you to restore your gravity charge."
+    }
+}

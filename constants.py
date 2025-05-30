@@ -28,6 +28,7 @@ class GameConfig:
         self._width = 800
         self._height = 600
         self.fps = 60
+        self._language = "en"
         
     @property
     def WIDTH(self):
@@ -36,6 +37,13 @@ class GameConfig:
     @property
     def HEIGHT(self):
         return self._height
+    
+    @property
+    def LANGUAGE(self):
+        return self._language
+        
+    def set_language(self, lang: str):
+        self._language = lang
         
     def set_resolution(self, width: int, height: int):
         self._width = width

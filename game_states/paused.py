@@ -6,6 +6,7 @@ from game_states.base import GameState
 from game_states.menu import GameStateMenu
 from ui.button import Button
 from constants import COLORS, CONFIG
+from language_manager import LANG
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -16,9 +17,9 @@ class GameStatePaused(GameState):
         self.state_manager = state_manager
         self.save_message_timer = 0
         self.buttons = [
-            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2-60, 300, 60, "Continue", self.continue_game),
-            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+20, 300, 60, "Save Game", self.save_game),
-            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+100, 300, 60, "Main Menu", self.main_menu)
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2-60, 300, 60,LANG.strings["ui"]["continue"], self.continue_game),
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+20, 300, 60,LANG.strings["ui"]["save_game"], self.save_game),
+            Button(CONFIG.WIDTH//2-150, CONFIG.HEIGHT//2+100, 300, 60,LANG.strings["ui"]["main_menu"], self.main_menu)
         ]
 
     def continue_game(self) -> None:
@@ -73,7 +74,7 @@ class GameStatePaused(GameState):
         screen.blit(overlay, (0, 0))
         
         font_large = pygame.freetype.SysFont('Arial', 60)
-        title_surf, title_rect = font_large.render("PAUSED", COLORS["WHITE"])
+        title_surf, title_rect = font_large.render(LANG.strings["ui"]["paused"], COLORS["WHITE"])
         title_rect.center = (CONFIG.WIDTH//2, CONFIG.HEIGHT//2 - 100)
         screen.blit(title_surf, title_rect)
         
@@ -82,7 +83,7 @@ class GameStatePaused(GameState):
         
         if self.save_message_timer > 0:
             font = pygame.freetype.SysFont('Arial', 24)
-            text_surf, text_rect = font.render("Game state saved!", COLORS["GREEN"])
+            text_surf, text_rect = font.render(LANG.strings["ui"]["game_saved"], COLORS["GREEN"])
             text_rect.bottomright = (CONFIG.WIDTH - 20, CONFIG.HEIGHT - 20)
             screen.blit(text_surf, text_rect)
 

@@ -29,3 +29,6 @@ class Button:
         text_surf, text_rect = font.render(self.text, self.text_color)
         text_rect.center = self.rect.center
         surface.blit(text_surf, text_rect)
+        
+    def set_text(self, new_text):
+        self.text = new_text

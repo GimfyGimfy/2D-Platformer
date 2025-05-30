@@ -7,6 +7,7 @@ from entities.orbs import Orb
 from entities.signs import Sign
 from entities.player import Player
 from entities.checkpoint import Checkpoint
+from language_manager import LANG
 
 class Level:
     def __init__(self):
@@ -51,7 +52,8 @@ class LevelLoader: #load levels from file
                         level.orbs.add(orb)
                         level.all_sprites.add(orb)
                     elif obj_type == 'sign':
-                        message = ','.join(parts[3:])
+                        sign_key = parts[3]
+                        message = LANG.strings["signs"].get(sign_key, sign_key)
                         sign = Sign(x, y, message)
                         level.signs.add(sign)
                         level.all_sprites.add(sign)

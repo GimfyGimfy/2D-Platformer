@@ -175,9 +175,12 @@ platform,86,2
 platform,87,2
 platform,89,2
 platform,88,2
-sign,4,0,Press Space to jump!
-sign,14,3,Sometimes you need to run using SHIFT.
-sign,29,3,It's a checkpoint!
+sign,4,0,tutorial_1
+sign,14,3,tutorial_2
+sign,29,3,tutorial_3
+sign,43,3,gravity_tip
+sign,89,3,teleporter_tip
+sign,72,3,orb_tip
 platform,36,2
 platform,38,2
 platform,37,2
@@ -217,9 +220,7 @@ platform,51,5
 platform,51,6
 platform,51,7
 platform,51,8
-platform,51,9
 platform,51,3
-sign,43,3,Try to flip your gravity. It recharges when you land on the ground.
 platform,50,20
 platform,49,20
 platform,48,20
@@ -314,9 +315,6 @@ platform,83,7
 platform,83,8
 platform,83,9
 platform,83,4
-platform,83,10
-platform,83,11
-sign,89,3,This will bring you closer to your goal!
 teleport,95,3,2
 platform,74,22
 platform,75,22
@@ -358,7 +356,6 @@ spike,92,21
 spike,94,21
 spike,96,21
 spike,98,21
-platform,74,11
 platform,74,13
 platform,74,14
 platform,74,15
@@ -372,5 +369,7 @@ platform,74,21
 platform,72,20
 platform,73,20
 platform,71,20
-sign,72,3,Orbs help you to restore your gravity charge.
 orb,79,11
+spike,51,9
+spike,74,11
+spike,83,10

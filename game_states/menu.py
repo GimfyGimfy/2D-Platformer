@@ -6,6 +6,7 @@ from typing import List
 from ui.button import Button
 from constants import COLORS, CONFIG
 from game_states.base import GameState
+from language_manager import LANG
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -17,33 +18,46 @@ class GameStateMenu(GameState):
         self.state_manager = state_manager
         self.last_width = 0
         self.last_height = 0
+        self.last_lang = LANG.current_lang #track current language
         self.buttons = []
+        self.button_keys = [] #store translation keys for buttons
         self._create_buttons()
 
     def _create_buttons(self):
-        #store current dimensions
+        #store current dimensions and language
         self.last_width = CONFIG.WIDTH
         self.last_height = CONFIG.HEIGHT
+        self.last_lang = LANG.current_lang
         
-        #create buttons centered based on current resolution
-        self.buttons = [
-            Button(CONFIG.WIDTH//2-150, 200, 300, 60, "Start Game", self.start_game),
-            Button(CONFIG.WIDTH//2-150, 280, 300, 60, "Load Game", self.load_game),
-            Button(CONFIG.WIDTH//2-150, 360, 300, 60, "Settings", self.open_settings),
-            Button(CONFIG.WIDTH//2-150, 440, 300, 60, "Quit", self.quit_game)
+        #create buttons with translation keys
+        self.button_keys = [
+            ("start_game", self.start_game),
+            ("load_game", self.load_game),
+            ("settings", self.open_settings),
+            ("quit", self.quit_game)
         ]
 
+        y_positions = [200, 280, 360, 440]
+        self.buttons = []
+        
+        for i, (key, action) in enumerate(self.button_keys):
+            self.buttons.append(Button(
+                CONFIG.WIDTH//2-150, 
+                y_positions[i], 
+                300, 60, 
+                LANG.strings["ui"][key], 
+                action
+            ))
+
     def update(self) -> None:
-        #recreate buttons if resolution changed
-        if CONFIG.WIDTH != self.last_width or CONFIG.HEIGHT != self.last_height:
+        #recreate buttons if resolution or language changed
+        if (CONFIG.WIDTH != self.last_width or 
+            CONFIG.HEIGHT != self.last_height or
+            LANG.current_lang != self.last_lang):
             self._create_buttons()
 
-    def empty_function(self) -> None:
-        """Placeholder function for buttons that don't do anything yet"""
-        pass
-
     def start_game(self) -> None:
-        from game_states.play import GameStatePlay  #local import
+        from game_states.play import GameStatePlay
         self.state_manager.push_state(GameStatePlay(self.state_manager))
     
     def open_settings(self):
@@ -75,6 +89,7 @@ class GameStateMenu(GameState):
             print(f"Load failed: {str(e)}")
     
     def on_activate(self):
+        #refresh buttons when menu becomes active
         self._create_buttons()
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:

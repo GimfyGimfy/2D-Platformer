@@ -3,75 +3,35 @@ from typing import List
 from game_states.base import GameState
 from constants import CONFIG, COLORS
 from ui.button import Button
+from language_manager import LANG
 
 class GameStateStory(GameState):
-    def __init__(self, state_manager, target_level: int, show_menu_after: bool = False):
+    def __init__(self, state_manager, target_level: int):
         self.state_manager = state_manager
         self.current_page = 0
         self.target_level=target_level
         self.alpha = 0
         self.fade_speed = 5
-        self.show_menu_after=show_menu_after
-        self.stories: Dict[int, List[List[str]]] = {
-        0: [
-            [
-                "In a world where gravity bends",
-                "to the will of unknown,",
-                "a lone hero must navigate",
-                "the long journey of fate."
-            ],
-            [
-                "Armed with the power to",
-                "reverse gravitational pull,",
-                "they journey through dangerous",
-                "realms to restore balance..."
-            ],
-            [
-                "But beware! The path is",
-                "littered with dangers and",
-                "mysterious events that",
-                "lead to unknown dimensions."
-            ]
-            ],
-            1: [
-                ["The first trial complete,",
-                 "but greater challenges await..."],
-                ["The orbs hum with",
-                 "increased energy now..."]
-            ],
-            2: [
-                ["Halfway through the journey,",
-                 "the laws of physics seem",
-                 "to bend more strangely..."],
-                ["A strange energy pulses",
-                 "from the teleporter..."]
-            ],
-            3: [
-                ["The final challenge awaits!",
-                 "All your skills will be",
-                 "tested one last time..."],
-                ["The master orb glows",
-                 "with intense power..."]
-            ],
-            4: [
-                [""]
-            ],
-            99: [  #special ID for ending
-            ["THE END", "",
-             "Congratulations on completing",
-             "your gravity-iful journey!"],
-            ["You've restored balance",
-             "in the universe.",
-             "",
-             "Thank you for playing our game!"]
-            ]
+        
+        story_map = {
+            1: "level1",
+            2: "level2",
+            3: "level3",
+            4: "level4",
+            99: "ending"
         }
         
-        self.story_pages=self.stories.get(target_level,[])
+        self.story_pages = []
+        story_key = story_map.get(target_level)
+        if story_key and story_key in LANG.strings["story"]:
+            page_keys = LANG.strings["story"][story_key]
+            for key in page_keys:
+                if key in LANG.strings["story"]:
+                    self.story_pages.append(LANG.strings["story"][key])
         self.active=bool(self.story_pages) #activate only if we have story pages
         self.skip_button = Button(
             CONFIG.WIDTH - 120, 20, 100, 30, #right top corner
-            "Skip", self.skip_story,
+            LANG.strings["ui"]["skip"], self.skip_story,
             text_color=COLORS["WHITE"],
             bg_color=COLORS["BLACK"],
             hover_color=COLORS["TRANSPARENT_ACCENT"]
@@ -80,7 +40,7 @@ class GameStateStory(GameState):
     def skip_story(self):
         self.active = False
         self.state_manager.pop_state()
-        if self.target_level == 0 or self.target_level == 99:
+        if self.target_level == 99:
             from game_states.menu import GameStateMenu
             self.state_manager.push_state(GameStateMenu(self.state_manager))
         else:
@@ -105,7 +65,7 @@ class GameStateStory(GameState):
                         self.alpha = 0
                         if self.current_page >= len(self.story_pages):
                             self.state_manager.pop_state()
-                            if self.target_level == 0 or self.target_level == 99: #intro story and ending
+                            if self.target_level == 99: #intro story and ending
                                 from game_states.menu import GameStateMenu
                                 self.state_manager.push_state(GameStateMenu(self.state_manager))
                             else:  #level stories
@@ -119,17 +79,13 @@ class GameStateStory(GameState):
             self.alpha = min(255, self.alpha + self.fade_speed)
 
     def draw(self, screen: pygame.Surface) -> None:
-        if not self.active or self.current_page >=len(self.story_pages):
+        if not self.active or self.current_page >= len(self.story_pages):
             return
         screen.fill(COLORS["BLACK"])
         
-        #calculate positions
         line_height = 40
-        if self.current_page >= len(self.story_pages):
-            return
         start_y = CONFIG.HEIGHT//2 - (len(self.story_pages[self.current_page]))*line_height//2
         
-        #draw current page with fade
         font = pygame.freetype.SysFont('Arial', 36)
         for i, line in enumerate(self.story_pages[self.current_page]):
             text_surf, _ = font.render(line, COLORS["WHITE"])
@@ -139,12 +95,11 @@ class GameStateStory(GameState):
             )
             screen.blit(text_surf, text_rect)
         
-        #draw prompt
         if self.alpha == 255:
             prompt_font = pygame.freetype.SysFont('Arial', 24)
-            prompt_text = "Press Z to continue" 
+            prompt_text = LANG.strings["ui"]["press_z"] 
             if self.current_page == len(self.story_pages) - 1:
-                prompt_text = "Press Z to begin"
+                prompt_text = LANG.strings["ui"]["begin"]
             
             prompt_surf, _ = prompt_font.render(prompt_text, COLORS["WHITE"])
             prompt_rect = prompt_surf.get_rect(
@@ -153,5 +108,4 @@ class GameStateStory(GameState):
             screen.blit(prompt_surf, prompt_rect)
         
         self.skip_button.draw(screen)
-        
         pygame.display.flip()

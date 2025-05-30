@@ -4,14 +4,10 @@ from constants import CONFIG
 from game_states.state_manager import StateManager
 from game_states.story import GameStateStory
 from game_states.menu import GameStateMenu
+from language_manager import LANG
 
 def main():
     pygame.init()
-    
-    #movement variables
-    move_direction = [0, 0]  # [x_movement, y_movement]
-    move_speed = 0.2  # Seconds between moves when key is held
-    last_move_time = 0  # Track time of last movement
     
     #screen initialisation with current config
     screen = pygame.display.set_mode((CONFIG.WIDTH, CONFIG.HEIGHT), pygame.RESIZABLE)
@@ -19,6 +15,9 @@ def main():
     clock = pygame.time.Clock()
     
     state_manager = StateManager()
+    LANG.load_languages()
+    #set initial language from config
+    LANG.set_language(CONFIG.LANGUAGE)
     
     #resize handler
     def handle_resize():
@@ -33,8 +32,8 @@ def main():
 
     state_manager.set_resize_callback(handle_resize)
     
-    #initial state - start with intro story (level 0)
-    state_manager.push_state(GameStateStory(state_manager, 0))
+    #initial state - start with main menu
+    state_manager.push_state(GameStateMenu(state_manager))
     
     while True:
         events = pygame.event.get()
