@@ -90,8 +90,6 @@ class GameStateSettings(GameState):
     def set_language(self, lang_code: str):
         CONFIG.set_language(lang_code)
         LANG.set_language(lang_code)
-        if self.state_manager.resize_callback:
-            self.state_manager.resize_callback()
         self._create_buttons()
         
     def toggle_fullscreen(self):
