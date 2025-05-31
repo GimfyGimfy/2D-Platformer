@@ -42,35 +42,43 @@ class GameStateSettings(GameState):
         pygame.display.flip()
 
     def _create_buttons(self):
-        button_height = 60
-        button_spacing = 20
-        total_height = (7 * button_height) + (6 * button_spacing)
-        start_y = (CONFIG.HEIGHT - total_height) // 2 + 40
-        
+        button_height = 45
+        button_spacing = 15
+        section_spacing = 30
+
+        start_y = 100
+        center_x = CONFIG.WIDTH // 2
+
         #section headers
         self.resolution_label_y = start_y - 40
-        self.language_label_y = start_y + 4*(button_height + button_spacing) - 40
-        
+        self.language_label_y = start_y + 4 * (button_height + button_spacing)+10
+
         self.buttons = [
             #resolution buttons
-            Button(CONFIG.WIDTH//2 - 150, start_y, 300, button_height, 
+            Button(center_x - 150, start_y, 300, button_height,
                    "800x600", lambda: self.set_resolution(800, 600)),
-            Button(CONFIG.WIDTH//2 - 150, start_y + button_height + button_spacing, 
-                   300, button_height, "1024x768", lambda: self.set_resolution(1024, 768)),
-            Button(CONFIG.WIDTH//2 - 150, start_y + 2*(button_height + button_spacing), 
-                   300, button_height, "1280x720", lambda: self.set_resolution(1280, 720)),
-            Button(CONFIG.WIDTH//2 - 150, start_y + 3*(button_height + button_spacing), 
-                   300, button_height, "1920x1080", lambda: self.set_resolution(1920, 1080)),
-            
+            Button(center_x - 150, start_y + 1 * (button_height + button_spacing), 300, button_height,
+                   "1024x768", lambda: self.set_resolution(1024, 768)),
+            Button(center_x - 150, start_y + 2 * (button_height + button_spacing), 300, button_height,
+                   "1280x720", lambda: self.set_resolution(1280, 720)),
+            Button(center_x - 150, start_y + 3 * (button_height + button_spacing), 300, button_height,
+                   "1920x1080", lambda: self.set_resolution(1920, 1080)),
+
             #language buttons
-            Button(CONFIG.WIDTH//2 - 150, start_y + 4*(button_height + button_spacing), 
-                   140, button_height, LANG.strings["ui"]["english"], lambda: self.set_language("en")),
-            Button(CONFIG.WIDTH//2 + 10, start_y + 4*(button_height + button_spacing), 
-                   140, button_height, LANG.strings["ui"]["russian"], lambda: self.set_language("ru")),
-            
+            Button(center_x - 210, self.language_label_y + section_spacing, 140, button_height,
+                   LANG.strings["ui"]["english"], lambda: self.set_language("en")),
+            Button(center_x - 60, self.language_label_y + section_spacing, 140, button_height,
+                   LANG.strings["ui"]["russian"], lambda: self.set_language("ru")),
+            Button(center_x + 90, self.language_label_y + section_spacing, 140, button_height,
+                   LANG.strings["ui"]["polish"], lambda: self.set_language("pl")),
+
+            #fullscreen toggle
+            Button(center_x - 150, self.language_label_y + section_spacing + 1 * (button_height + section_spacing),
+                   300, button_height, self.get_fullscreen_label(), self.toggle_fullscreen),
+
             #back button
-            Button(CONFIG.WIDTH//2 - 150, start_y + 5*(button_height + button_spacing), 
-                   300, button_height, LANG.strings["ui"]["back"], self.go_back)
+            Button(center_x - 150, self.language_label_y + section_spacing + 2 * (button_height + section_spacing),
+                   300, button_height, LANG.strings["ui"]["back"], self.go_back),
         ]
 
     def set_resolution(self, width: int, height: int):
@@ -85,6 +93,15 @@ class GameStateSettings(GameState):
         if self.state_manager.resize_callback:
             self.state_manager.resize_callback()
         self._create_buttons()
+        
+    def toggle_fullscreen(self):
+        CONFIG.toggle_fullscreen()
+        if self.state_manager.resize_callback:
+            self.state_manager.resize_callback()
+        self._create_buttons()
+
+    def get_fullscreen_label(self):
+        return LANG.strings["ui"]["fullscreen_on"] if CONFIG.fullscreen else LANG.strings["ui"]["fullscreen_off"]
 
     def go_back(self):
         from game_states.menu import GameStateMenu

@@ -8,9 +8,12 @@ from language_manager import LANG
 
 def main():
     pygame.init()
-    
-    #screen initialisation with current config
-    screen = pygame.display.set_mode((CONFIG.WIDTH, CONFIG.HEIGHT), pygame.RESIZABLE)
+
+    CONFIG.load_config()
+
+    flags = pygame.FULLSCREEN if CONFIG.fullscreen else 0
+    screen = pygame.display.set_mode((CONFIG.WIDTH, CONFIG.HEIGHT), flags)
+
     pygame.display.set_caption("Gravity Platformer")
     clock = pygame.time.Clock()
     
@@ -22,10 +25,8 @@ def main():
     #resize handler
     def handle_resize():
         nonlocal screen
-        screen = pygame.display.set_mode(
-            (CONFIG.WIDTH, CONFIG.HEIGHT),
-            pygame.RESIZABLE
-        )
+        flags = pygame.FULLSCREEN if CONFIG.fullscreen else 0
+        screen = pygame.display.set_mode((CONFIG.WIDTH, CONFIG.HEIGHT), flags)
         #refresh all states
         for state in state_manager._states:
             state.draw(screen) #forcing redraw with new resolution

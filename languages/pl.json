@@ -1,11 +1,11 @@
 {
     "ui": {
-        "continue": "Continue",
+        "continue": "Kontynuuj",
         "save_game": "Save Game",
         "main_menu": "Main Menu",
         "start_game": "Start Game",
         "load_game": "Load Game",
-        "settings": "Settings",
+        "settings": "Opcje",
         "quit": "Quit",
         "back": "Back",
         "skip": "Skip",
