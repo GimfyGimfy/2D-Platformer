@@ -7,7 +7,7 @@ JUMP_STRENGTH = 12
 PLAYER_SPEED = 5
 SPRINT_SPEED = 8
 SPRINT_ACCELERATION = 1.2
-NUM_LEVELS = 4
+NUM_LEVELS = 5
 BG_IMAGE_PATH="assets/images/background.png"
 
 COLORS = {
@@ -15,6 +15,7 @@ COLORS = {
     "BLACK": (0, 0, 0),
     "TRANSPARENT_ACCENT": (54,54,54, 30),
     "RED": (255, 0, 0),
+    "DARK_RED": (150, 0, 0),
     "GREEN": (0, 255, 0),
     "BLUE": (0, 0, 255),
     "YELLOW": (255, 255, 0),

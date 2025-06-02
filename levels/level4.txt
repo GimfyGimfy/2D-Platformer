@@ -11,7 +11,7 @@ platform,-4,-1
 platform,-5,-1
 platform,-6,-1
 platform,-7,-1
-teleport,1,1,5
+teleport,1,3,5
 platform,-8,-1
 platform,-8,0
 platform,-8,1

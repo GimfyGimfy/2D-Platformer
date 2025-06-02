@@ -3,6 +3,7 @@ from entities.player import Player
 from entities.checkpoint import Checkpoint
 from level import Level
 from game_states.state_manager import StateManager
+from entities.boss import Boss
 from constants import COLORS, NUM_LEVELS
 
 class CollisionSystem: #check for touching objects
@@ -45,3 +46,7 @@ class CollisionSystem: #check for touching objects
                 #set new checkpoint
                 level.active_checkpoint = checkpoint
                 player.set_reset_position(checkpoint.rect.x, checkpoint.rect.y)
+        for boss in pygame.sprite.spritecollide(player, level.bosses, False):
+            if boss.active:
+                from game_states.story import GameStateStory
+                state_manager.push_state(GameStateStory(state_manager, 99))

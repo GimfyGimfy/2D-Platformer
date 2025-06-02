@@ -73,6 +73,8 @@ class GameStatePlay(GameState):
             self.level.player.reset_flip_flag()
 
         self.speed_lines.update()
+        for boss in self.level.bosses:
+            boss.update(self.level.player.rect)
         
     def _create_speedlines(self) -> None:
         direction = Vector2(0, self.level.player.gravity_direction)

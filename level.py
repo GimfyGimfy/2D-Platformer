@@ -7,6 +7,7 @@ from entities.orbs import Orb
 from entities.signs import Sign
 from entities.player import Player
 from entities.checkpoint import Checkpoint
+from entities.boss import Boss
 from language_manager import LANG
 
 class Level:
@@ -19,6 +20,7 @@ class Level:
         self.signs = pygame.sprite.Group()
         self.player = None
         self.checkpoints = pygame.sprite.Group()
+        self.bosses = pygame.sprite.Group()
         self.active_checkpoint = None
 
 class LevelLoader: #load levels from file
@@ -61,6 +63,11 @@ class LevelLoader: #load levels from file
                         checkpoint = Checkpoint(x, y)
                         level.checkpoints.add(checkpoint)
                         level.all_sprites.add(checkpoint)
+                    elif obj_type == 'boss':
+                        boss_speed = float(parts[3]) if len(parts) > 3 else 3.0
+                        boss = Boss(x, y, boss_speed)
+                        level.bosses.add(boss)
+                        level.all_sprites.add(boss)
         except FileNotFoundError:
             print(f"Level {level_num} not found!")
             return LevelLoader.load(1)
