@@ -16,18 +16,20 @@ if TYPE_CHECKING:
 
 class GameStatePlay(GameState):
     def __init__(self, state_manager: 'StateManager', level_num: int = 1):
-        self.cached_zoom = None
-        self.cached_scaled_bg = None
         self.state_manager = state_manager
         self.level_num = level_num
         self.level = LevelLoader.load(level_num)
         self.camera = (0, 0)
         self.background = pygame.image.load(BG_IMAGE_PATH).convert()
-        self.original_bg = self.background.copy() #store original for scaling
+        self.original_bg = self.background.copy()
+
         self.speed_lines = pygame.sprite.Group()
-        self.zoom = 1.0 #default zoom level
-        self.min_zoom = 0.5 #max zoom out (to see more of the level)
-        self.max_zoom = 2.0 #max zoom in
+        self.zoom = self.state_manager.zoom_level  # <-- use saved zoom
+        self.min_zoom = 0.5
+        self.max_zoom = 2.0
+
+        self.cached_zoom = None
+        self.cached_scaled_bg = None
 
     def handle_events(self, events: List[pygame.event.Event]) -> None:
         for event in events:
@@ -44,9 +46,12 @@ class GameStatePlay(GameState):
                     self.state_manager.push_state(GameStatePaused(self.state_manager))
                 # Zoom controls
                 if event.key == pygame.K_z:
-                    self.zoom = max(self.min_zoom, self.zoom - 0.1)  # Zoom out
+                    self.zoom = max(self.min_zoom, self.zoom - 0.1)
+                    self.state_manager.zoom_level = self.zoom
+
                 if event.key == pygame.K_c:
-                    self.zoom = min(self.max_zoom, self.zoom + 0.1)  # Zoom in
+                    self.zoom = min(self.max_zoom, self.zoom + 0.1)
+                    self.state_manager.zoom_level = self.zoom
 
     def update(self) -> None:
         keys = pygame.key.get_pressed()

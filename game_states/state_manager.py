@@ -5,6 +5,7 @@ class StateManager:
     def __init__(self):
         self._states: List[GameState] = []
         self.resize_callback = None
+        self.zoom_level=1.0
     
     def push_state(self, state: GameState) -> None:
         self._states.append(state)
