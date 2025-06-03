@@ -21,6 +21,18 @@
         "press_z": "Press Z to continue",
         "begin": "Press Z to begin"
     },
+	"hud": {
+        "level": "Level: {0}",
+        "move": "A & D: Move left/right",
+        "jump": "Space: Jump",
+        "sprint": "Shift: Sprint",
+        "flip_gravity": "Left Click/L: Flip Gravity",
+        "reset": "R: Reset Position",
+        "pause": "ESC: Pause Game",
+        "zoom": "Zoom: {0}x (Z/C to adjust)",
+		"down": "Gravity: Down",
+		"up":"Gravity: Up"
+    },
     "story": {
         "level2": [
 		    "story_1_0",

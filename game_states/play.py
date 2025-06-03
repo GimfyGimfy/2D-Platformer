@@ -8,6 +8,7 @@ from game_states.paused import GameStatePaused
 from level import Level, LevelLoader
 from collision_system import CollisionSystem
 from constants import COLORS, PLAYER_SPEED, SPRINT_ACCELERATION, SPRINT_SPEED, CONFIG, BG_IMAGE_PATH
+from language_manager import LANG
 
 from typing import TYPE_CHECKING
 
@@ -171,15 +172,14 @@ class GameStatePlay(GameState):
         
         #defining instructions and game info
         instructions = [
-            f"Level: {current_level}",
-            "A & D: Move left and right",
-            "Space: Jump",
-            "Shift: Sprint",
-            "Left Click / L: Flip Gravity",
-            "R: Reset Position",
-            "ESC: Pause Game",
-            f"Gravity-Flip ready: {player.charged}",
-            f"Zoom: {self.zoom:.1f}x (Z/C to adjust)" #show current zoom level
+            LANG.strings["hud"]["level"].format(current_level),
+            LANG.strings["hud"]["move"],
+            LANG.strings["hud"]["jump"],
+            LANG.strings["hud"]["sprint"],
+            LANG.strings["hud"]["flip_gravity"],
+            LANG.strings["hud"]["reset"],
+            LANG.strings["hud"]["pause"],
+            LANG.strings["hud"]["zoom"].format(f"{self.zoom:.1f}")
         ]
 
         font_small = pygame.freetype.Font('fonts/Silver.ttf',30)
@@ -187,7 +187,7 @@ class GameStatePlay(GameState):
         start_x = 10
         start_y = 40
 
-        gravity_text = "Gravity: DOWN" if player.gravity_direction == 1 else "Gravity: UP"
+        gravity_text = LANG.strings["hud"]["down"] if player.gravity_direction == 1 else LANG.strings["hud"]["up"]
         text_surf, _ = font_small.render(gravity_text, COLORS["WHITE"])
         screen.blit(text_surf, (10, 10))
 

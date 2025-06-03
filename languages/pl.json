@@ -21,6 +21,18 @@
         "press_z": "Naciśnij Z, aby kontynuować",
         "begin": "Naciśnij Z, aby rozpocząć"
     },
+	"hud": {
+        "level": "Poziom: {0}",
+        "move": "A & D: Poruszanie się w lewo/prawo",
+        "jump": "Spacja: Skok",
+        "sprint": "Shift: Sprint",
+        "flip_gravity": "Lewy przycisk myszy/L: Odwróć grawitację",
+        "reset": "R: Resetuj pozycję",
+        "pause": "ESC: Pauza",
+        "zoom": "Powiększenie: {0}x (Z/C aby dostosować)",
+		"down": "Grawitacja: Dół",
+		"up":"Grawitacja: Góra"
+    },
     "story": {
         "level2": [
             "story_1_0",
