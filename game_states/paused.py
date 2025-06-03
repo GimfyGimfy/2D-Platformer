@@ -82,7 +82,7 @@ class GameStatePaused(GameState):
             button.draw(screen)
         
         if self.save_message_timer > 0:
-            font = pygame.freetype.SysFont('Arial', 24)
+            font = pygame.freetype.Font('fonts/Silver.ttf',34)
             text_surf, text_rect = font.render(LANG.strings["ui"]["game_saved"], COLORS["GREEN"])
             text_rect.bottomright = (CONFIG.WIDTH - 20, CONFIG.HEIGHT - 20)
             screen.blit(text_surf, text_rect)

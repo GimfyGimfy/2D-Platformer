@@ -102,7 +102,7 @@ class GameStateMenu(GameState):
                     
     def draw(self, screen: pygame.Surface) -> None:
         screen.fill(COLORS["MENU_BG"])
-        font_large = pygame.freetype.SysFont('Arial', 60)
+        font_large = pygame.freetype.Font('fonts/Silver.ttf',90)
         title_surf, title_rect = font_large.render("Gravity Platformer", COLORS["WHITE"])
         title_rect.center = (CONFIG.WIDTH//2, 100)
         screen.blit(title_surf, title_rect)
