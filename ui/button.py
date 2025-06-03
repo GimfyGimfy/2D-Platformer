@@ -25,7 +25,7 @@ class Button:
         pygame.draw.rect(surface, color, self.rect, border_radius=5)
         
         #draw text
-        font = pygame.freetype.SysFont('Arial', 24)
+        font = pygame.freetype.Font('fonts/Silver.ttf',38)
         text_surf, text_rect = font.render(self.text, self.text_color)
         text_rect.center = self.rect.center
         surface.blit(text_surf, text_rect)

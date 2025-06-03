@@ -24,10 +24,10 @@ class GameStateSettings(GameState):
 
     def draw(self, screen: pygame.Surface) -> None:
         screen.fill(COLORS["MENU_BG"])
-        font = pygame.freetype.SysFont('Arial', 60)
+        font = pygame.freetype.Font('fonts/Silver.ttf',80)
         
         #draw section headers
-        font_section = pygame.freetype.SysFont('Arial', 30)
+        font_section = pygame.freetype.Font('fonts/Silver.ttf',50)
         res_text, res_rect = font_section.render(LANG.strings["ui"]["resolution"], COLORS["WHITE"])
         res_rect.midleft = (CONFIG.WIDTH//2 - 150, self.resolution_label_y)
         screen.blit(res_text, res_rect)

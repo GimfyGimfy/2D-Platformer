@@ -1,109 +1,228 @@
 {
     "ui": {
         "continue": "Kontynuuj",
-        "save_game": "Save Game",
-        "main_menu": "Main Menu",
-        "start_game": "Start Game",
-        "load_game": "Load Game",
-        "settings": "Opcje",
-        "quit": "Quit",
-        "back": "Back",
-        "skip": "Skip",
-        "fullscreen_on": "Fullscreen: ON",
-		"fullscreen_off": "Fullscreen: OFF",
-        "resolution": "Resolution",
-        "language": "Language",
-        "english": "English",
-        "russian": "Russian",
-		"polish": "Polish",
-        "game_saved": "Game state saved!",
-        "paused": "PAUSED",
-        "press_z": "Press Z to continue",
-        "begin": "Press Z to begin"
+        "save_game": "Zapisz grę",
+        "main_menu": "Menu główne",
+        "start_game": "Rozpocznij grę",
+        "load_game": "Wczytaj grę",
+        "settings": "Ustawienia",
+        "quit": "Wyjdź",
+        "back": "Wstecz",
+        "skip": "Pomiń",
+        "fullscreen_on": "Pełny ekran: WŁ.",
+        "fullscreen_off": "Pełny ekran: WYŁ.",
+        "resolution": "Rozdzielczość",
+        "language": "Język",
+        "english": "Angielski",
+        "russian": "Rosyjski",
+        "polish": "Polski",
+        "game_saved": "Stan gry zapisany!",
+        "paused": "PAUZA",
+        "press_z": "Naciśnij Z, aby kontynuować",
+        "begin": "Naciśnij Z, aby rozpocząć"
     },
     "story": {
-        "level1": [
-		    "story_1_0",
-            "story_1_1",
-            "story_1_2"
-        ],
         "level2": [
-		    "story_2_0",
-            "story_2_1"
+            "story_1_0",
+            "story_1_1"
         ],
         "level3": [
-			"story_3_0",
+            "story_2_0",
+            "story_2_1"
+        ],
+        "level4": [
+            "story_3_0",
             "story_3_1"
         ],
-		"level4": [
-			"story_4_0",
-            "story_4_1"
-		],
-        "ending": [
+        "level5": [
+            "story_4_0",
+            "story_4_1",
+            "story_4_2"
+        ],
+        "level6": [
+            "story_5_0",
+            "story_5_1",
+            "story_5_2"
+        ],
+        "level7": [
+            "story_6_0",
+            "story_6_1",
+            "story_6_2"
+        ],
+        "level8": [
+            "story_7_0",
+            "story_7_1"
+        ],
+        "level9": [
+            "story_8_0",
+            "story_8_1"
+        ],
+        "level10": [
+            "story_9_0",
+            "story_9_1"
+        ],
+        "level11": [
+            "story_10_0",
+            "story_10_1"
+        ],
+        "ending1": [
             "story_99_0",
-            "story_99_1"
+            "story_99_1",
+            "story_99_2",
+            "story_99_3"
+        ],
+        "ending2": [
+            "story_98_0",
+            "story_98_1",
+            "story_99_3"
         ],
         "story_1_0": [
-            "In a world where gravity bends",
-            "to the will of unknown,",
-            "a lone hero must navigate",
-            "the long journey of fate."
+            "--Rozdział 1: Przebudzenie--"
         ],
         "story_1_1": [
-            "Armed with the power to",
-            "reverse gravitational pull,",
-            "they journey through dangerous",
-            "realms to restore balance..."
-        ],
-        "story_1_2": [
-            "But beware! The path is",
-            "littered with dangers and",
-            "mysterious events that",
-            "lead to unknown dimensions."
+            "Budzisz się w niezwykłej",
+            "przestrzeni. Jest trochę chłodno, ale...",
+            "nie ma tu żadnego znajomego powiewu.",
+            "Twoje oczy trochę przyzwyczajają się",
+            "do ciężaru powiek i otwierają się.",
+            "To zdecydowanie nie jest świat, który znałeś."
         ],
         "story_2_0": [
-            "The first trial complete,",
-            "but greater challenges await..."
+            "--Rozdział 2: Zdolność--"
         ],
         "story_2_1": [
-            "The orbs hum with",
-            "increased energy now..."
+            "Po zbadaniu otoczenia",
+            "odkrywasz w sobie niezwykłą zdolność.",
+            "Zmiana grawitacji. To trudne, ale...",
+            "przy wystarczającym wysiłku",
+            "udaje ci się zmienić pole."
         ],
         "story_3_0": [
-            "Halfway through the journey,",
-            "the laws of physics seem",
-            "to bend more strangely..."
+            "--Rozdział 3: Wędrówka--"
         ],
         "story_3_1": [
-            "A strange energy pulses",
-            "from the teleporter..."
+            "Nieco oswojony z miejscowymi zasadami,",
+            "wszędzie napotykasz kolce. Niebezpieczne i ostre,",
+            "pozostawione przez kogoś nieznanego. Wciąż nie udało ci się",
+            "napotkać żadnej żywej duszy."
         ],
         "story_4_0": [
-            "The final challenge awaits!",
-            "All your skills will be",
-            "tested one last time..."
+            "--Rozdział 4: Czy ktoś tu jest?--"
         ],
         "story_4_1": [
-            "The master orb glows",
-            "with intense power..."
+            "Nieważne jak głośno wołałeś,",
+            "nikt nie odpowiedział. Wygląda na to,",
+            "że to miejsce jest kompletnie bezludne."
+        ],
+        "story_4_2": [
+            "Uświadomiwszy sobie daremność poszukiwania",
+            "żywych istot, zdajesz sobie sprawę, że wciąż nie",
+            "poczułeś głodu. Ziemia była zimna, nie dająca",
+            "możliwości życiu, nie mówiąc już o owocach czy jedzeniu.",
+            "A jednak twój żołądek nie burczał nawet po wielu godzinach."
+        ],
+        "story_5_0": [
+            "--Rozdział 5: Pułapka--"
+        ],
+        "story_5_1": [
+            "Wszystko wydaje się tak nierealne. Nieważne jak bardzo",
+            "próbowałeś uderzać w ziemie czy coś zniszczyć",
+            "zmianą grawitacji, świat pozostawał taki sam.",
+            "Byłeś tu uwięziony, jakby to był czyjś okrutny żart,"
+        ],
+        "story_5_2": [
+            "jakby ktoś miał wyjść i powiedzieć: 'Cięcie!' i wyjaśnić ci,",
+            "że to tylko eksperyment społeczny. Ale wciąż nikt",
+            "nie wydał dźwięku. Jednak ranienia od kolców były prawdziwe."
+        ],
+        "story_6_0": [
+            "--Rozdział 6: Pomoc?--"
+        ],
+        "story_6_1": [
+            "Po przećwiczeniu swojej zdolności,",
+            "doszedłeś do wniosku, że zmiana grawitacji nie jest",
+            "taka łatwa. Lekkie zawroty głowy, ciężkość. Wszystko mijało,"
+        ],
+        "story_6_2": [
+            "gdy tylko wylądowałeś na powierzchni. Próbując poszerzyć",
+            "swoje granice, nagle zauważasz małe źródło światła.",
+            "Niezwykła sfera, wabiąca łagodnym blaskiem."
+        ],
+        "story_7_0": [
+            "--Rozdział 7: Nowe możliwości--"
+        ],
+        "story_7_1": [
+            "Dotknąwszy sfery, poczułeś gwałtowny przypływ siły.",
+            "Świat zaiskrzył, jakby wypełniłeś się determinacją.",
+            "Może to jeszcze nie koniec. Wciąż jest droga wyjścia."
+        ],
+        "story_8_0": [
+            "--Rozdział 8: Postęp--"
+        ],
+        "story_8_1": [
+            "Przemieszczając się przez pułapki z kolców, odkrywasz, że materia",
+            "tego wszechświata jest rzeczywiście niestabilna. Zmiana grawitacji stała się rutyną,",
+            "a sfery - zwykłym wygodnym narzędziem, jak harfa w rękach",
+            "wprawnego muzyka."
+        ],
+        "story_9_0": [
+            "--Rozdział 9: Coraz bliżej--"
+        ],
+        "story_9_1": [
+            "Coś cię wzywa naprzód. Cichy, ledwo słyszalny szept.",
+            "Ta siła ciągnie cię, zmuszając, byś szedł dalej.",
+            "Czujesz, że koniec tej przygody jest bliski.",
+            "Wytrzymaj. Wszystko wkrótce się skończy."
+        ],
+        "story_10_0": [
+            "--Rozdział 10: Niebezpieczeństwo--"
+        ],
+        "story_10_1": [
+            "Hałas. Nagły, ostry hałas. Pobiegłeś w kierunku dźwięku, nagle",
+            "stając twarzą w twarz z pokręconą istotą, która groźnie",
+            "rzucała się na ciebie. Straszne. Nie wiesz, czym jest to uczucie, ale",
+            "wydaje się, że spotkanie z nią nie wróży nic dobrego."
         ],
         "story_99_0": [
-            "THE END", "",
-            "Congratulations on completing",
-            "your gravity-iful journey!"
+            "--Prawdziwe zakończenie--"
         ],
         "story_99_1": [
-            "You've restored balance",
-            "in the universe.", "",
-            "Thank you for playing our game!"
+            "Podskakujesz i rozglądasz się dookoła. Światło ostro uderzyło w twoje oczy, wokół",
+            "było bardzo ciepło. Twoje serce waliło jak szalone, wciąż przypominając",
+            "o spotkaniu z istotą, nieznanych ziemiach i zdolnościach.",
+            "Westchnąłeś, z trudem wstając z łóżka. Niechętnie."
+        ],
+        "story_99_2": [
+            "Ale coś w tobie się zmieniło, a gdzieś w głębi",
+            "zajaśniała iskra nadziei po doświadczeniu możliwości",
+            "zmiany własnego losu, niczym grawitacji."
+        ],
+        "story_99_3": [
+            "Dziękujemy za zagranie w naszą grę!"
+			"",
+			"Programowanie: Tomasz & Lapitia",
+			"Grafika & poziomy: Tomasz",
+			"Opowieść: Lapitia",
+			"Czcionka: Silver by Poppy Works, Wolfgang Wozniak"
+        ],
+        "story_98_0": [
+            "--Złe zakończenie--"
+        ],
+        "story_98_1": [
+            "Zapadasz w głęboki sen. Ciemno, bardzo zimno.",
+            "Wszystko wokół lekko drży, cała ziemia",
+            "którą badałeś przez ten czas, rozpada się, pozostawiając",
+            "całkowitą pustkę. Próbujesz złapać się czegoś,",
+            "znów zmienić grawitację, ale nie możesz nawet wziąć oddechu.",
+            "Tylko nieskończona ciemność."
         ]
     },
-	"signs": {
-        "tutorial_1": "Press Space to jump!",
-        "tutorial_2": "Sometimes you need to run using SHIFT. Be mindful of the spikes.",
-        "tutorial_3": "It's a checkpoint!",
-        "gravity_tip": "Try to flip your gravity. It recharges when you land on the ground.",
-        "teleporter_tip": "This will bring you closer to your goal!",
-        "orb_tip": "Orbs help you to restore your gravity charge."
+    "signs": {
+        "tutorial_1": "Naciśnij Spację, aby skoczyć!",
+        "tutorial_2": "Czasem trzeba biec używając SHIFT. Uważaj na kolce.",
+        "tutorial_3": "To checkpoint!",
+        "gravity_tip": "Spróbuj odwrócić grawitację. Ładuje się, gdy staniesz na ziemi.",
+        "teleporter_tip": "To przybliży cię do celu!",
+        "orb_tip": "Sfery pomagają odnowić ładunek grawitacji."
     }
 }

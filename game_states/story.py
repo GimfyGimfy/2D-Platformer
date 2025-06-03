@@ -14,12 +14,17 @@ class GameStateStory(GameState):
         self.fade_speed = 5
         
         story_map = {
-            1: "level1",
             2: "level2",
             3: "level3",
             4: "level4",
-            5: "level4",
-            99: "ending"
+            5: "level5",
+            6: "level6",
+            7: "level7",
+            8: "level8",
+            9: "level9",
+            10: "level10",
+            99: "ending1",
+            98: "ending2"
         }
         
         self.story_pages = []
@@ -41,7 +46,7 @@ class GameStateStory(GameState):
     def skip_story(self):
         self.active = False
         self.state_manager.pop_state()
-        if self.target_level == 99:
+        if self.target_level == 99 or self.target_level == 98:
             from game_states.menu import GameStateMenu
             self.state_manager.push_state(GameStateMenu(self.state_manager))
         else:
@@ -66,7 +71,7 @@ class GameStateStory(GameState):
                         self.alpha = 0
                         if self.current_page >= len(self.story_pages):
                             self.state_manager.pop_state()
-                            if self.target_level == 99: #intro story and ending
+                            if self.target_level == 99 or self.target_level == 98: #ending
                                 from game_states.menu import GameStateMenu
                                 self.state_manager.push_state(GameStateMenu(self.state_manager))
                             else:  #level stories
@@ -87,7 +92,7 @@ class GameStateStory(GameState):
         line_height = 40
         start_y = CONFIG.HEIGHT//2 - (len(self.story_pages[self.current_page]))*line_height//2
         
-        font = pygame.freetype.SysFont('Arial', 36)
+        font = pygame.freetype.Font('fonts/Silver.ttf',44)
         for i, line in enumerate(self.story_pages[self.current_page]):
             text_surf, _ = font.render(line, COLORS["WHITE"])
             text_surf.set_alpha(self.alpha)
@@ -97,7 +102,7 @@ class GameStateStory(GameState):
             screen.blit(text_surf, text_rect)
         
         if self.alpha == 255:
-            prompt_font = pygame.freetype.SysFont('Arial', 24)
+            prompt_font = pygame.freetype.Font('fonts/Silver.ttf',40)
             prompt_text = LANG.strings["ui"]["press_z"] 
             if self.current_page == len(self.story_pages) - 1:
                 prompt_text = LANG.strings["ui"]["begin"]

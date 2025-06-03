@@ -177,7 +177,7 @@ class GameStatePlay(GameState):
             f"Zoom: {self.zoom:.1f}x (Z/C to adjust)" #show current zoom level
         ]
 
-        font_small = pygame.freetype.SysFont('Arial', 20)
+        font_small = pygame.freetype.Font('fonts/Silver.ttf',30)
         line_height = 30
         start_x = 10
         start_y = 40
@@ -192,8 +192,8 @@ class GameStatePlay(GameState):
             
         if self.level.active_sign:
             sign = self.level.active_sign
-            scaled_font_size = max(12, int(24 * self.zoom))
-            font = pygame.freetype.SysFont('Arial', scaled_font_size)
+            scaled_font_size = max(36, int(32 * self.zoom))
+            font = pygame.freetype.Font('fonts/Silver.ttf', scaled_font_size)
             
             sign_screen_x = (sign.rect.x - self.camera[0]) * self.zoom
             sign_screen_y = (sign.rect.y - self.camera[1] - 40) * self.zoom

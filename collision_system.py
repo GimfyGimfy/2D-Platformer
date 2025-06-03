@@ -49,4 +49,4 @@ class CollisionSystem: #check for touching objects
         for boss in pygame.sprite.spritecollide(player, level.bosses, False):
             if boss.active:
                 from game_states.story import GameStateStory
-                state_manager.push_state(GameStateStory(state_manager, 99))
+                state_manager.push_state(GameStateStory(state_manager, 98))
