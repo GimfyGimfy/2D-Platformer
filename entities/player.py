@@ -146,7 +146,7 @@ class Player(GameObject):
 
         speed = abs(x_velocity)
         walk_animation_speed = 5
-        run_animation_speed = 4
+        run_animation_speed = 6
 
         if not self.on_ground:
             if self.velocity_y * self.gravity_direction < 0:
