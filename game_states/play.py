@@ -56,7 +56,6 @@ class GameStatePlay(GameState):
 
     def update(self) -> None:
         keys = pygame.key.get_pressed()
-        dx = 0
         self.level.player.is_sprinting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
 
         if self.level.player.is_sprinting:
@@ -64,12 +63,15 @@ class GameStatePlay(GameState):
         else:
             self.level.player.current_speed = max(PLAYER_SPEED, self.level.player.current_speed - SPRINT_ACCELERATION*1.2)
 
+        x_velocity = 0
         if keys[pygame.K_a]:
-            dx -= self.level.player.current_speed
+            x_velocity -= self.level.player.current_speed
         if keys[pygame.K_d]:
-            dx += self.level.player.current_speed
+            x_velocity += self.level.player.current_speed
 
-        self.level.player.rect.x += dx
+        # Przekazujemy ruch do player.update(), on obsługuje ruch i animację
+        self.level.player.update(x_velocity)
+
         self._handle_horizontal_collision()
         self.level.player.apply_physics(self.level.platforms)
         CollisionSystem.handle_collisions(self.level.player, self.level, self.state_manager)

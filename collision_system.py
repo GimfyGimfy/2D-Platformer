@@ -27,7 +27,6 @@ class CollisionSystem: #check for touching objects
             if orb.active and player.charged == False:
                 orb.deactivate()
                 player.charged = True
-                player.image.fill(COLORS["GREEN"])
         level.active_sign = None
         for sign in level.signs:
             distance = pygame.math.Vector2(sign.rect.center).distance_to(player.rect.center)

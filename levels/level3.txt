@@ -1625,3 +1625,4 @@ platform,196,0
 platform,197,0
 spike,197,-1
 spike,196,-1
+teleport,282,5,4

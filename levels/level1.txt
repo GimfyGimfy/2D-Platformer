@@ -998,4 +998,10 @@ platform,275,22
 platform,274,22
 platform,273,22
 platform,272,22
+sign,1,0,1.1
+sign,41,0,1.2
+sign,94,0,1.3
+sign,129,7,1.5
+sign,190,7,1.4
+sign,264,23,1.6
 teleport,278,24,2
