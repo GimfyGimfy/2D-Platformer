@@ -44,7 +44,8 @@
         ],
         "level4": [
             "story_3_0",
-            "story_3_1"
+            "story_3_1",
+			"story_3_2"
         ],
         "level5": [
             "story_4_0",
@@ -118,6 +119,12 @@
             "pozostawione przez kogoś nieznanego. Wciąż nie udało ci się",
             "napotkać żadnej żywej duszy."
         ],
+		"story_3_2": [
+			"Jesteś lekko niestabilny. Wygląda na to, że",
+			"ten obszar jest trochę inny.",
+			"Czujesz się, jakbyś był unoszony nad ziemię jak piórko.",
+			"Musisz uważać."
+		],
         "story_4_0": [
             "--Rozdział 4: Czy ktoś tu jest?--"
         ],
@@ -231,12 +238,11 @@
         ]
     },
     "signs": {
-        "1.1": "Uzyj A i D zeby sie poruszac i SPACJI zeby skakac!",
-	"1.2": "Przytrzymaj SHIFT zeby biec sprintem!",
-	"1.3": "Nacisnij LEWY PRZYCISK MYSZY lub L zeby odwrocic grawitacje!",
-	"1.4": "Zebranie orba w powietrzu pozwoli Ci ponownie odwrocic grawitacje (Dostosuj przyblizenie kamery przy pomocy Z i C, zeby lepiej widziec!)",
-	"1.5": "Uwazaj na kolce! Przeniosa Cie do ostatniego punktu kontrolnego!",
-	"1.6": "Swietna robota! Wiesz juz wszystko co musisz wiedziec, zeby grac w gre!"
-
+        "1.1": "Użyj A i D, żeby się poruszać i SPACJI, żeby skakać!",
+		"1.2": "Przytrzymaj SHIFT, żeby biec sprintem!",
+		"1.3": "Nacisnij LEWY PRZYCISK MYSZY lub L żeby odwrócić grawitację!",
+		"1.4": "Zebranie orba w powietrzu pozwoli Ci ponownie odwrócić grawitację (Dostosuj przybliżenie przy pomocy Z i C)",
+		"1.5": "Uważaj na kolce! Przeniosą Cie do ostatniego punktu kontrolnego!",
+		"1.6": "Swietna robota! Wiesz już wszystko co musisz wiedziec, żeby grać!"
     }
 }
