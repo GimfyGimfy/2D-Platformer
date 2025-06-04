@@ -231,12 +231,11 @@
         ]
     },
     "signs": {
-        "1.1": "Uzyj A i D zeby sie poruszac i SPACJI zeby skakac!",
-	"1.2": "Przytrzymaj SHIFT zeby biec sprintem!",
-	"1.3": "Nacisnij LEWY PRZYCISK MYSZY lub L zeby odwrocic grawitacje!",
-	"1.4": "Zebranie orba w powietrzu pozwoli Ci ponownie odwrocic grawitacje (Dostosuj przyblizenie kamery przy pomocy Z i C, zeby lepiej widziec!)",
-	"1.5": "Uwazaj na kolce! Przeniosa Cie do ostatniego punktu kontrolnego!",
-	"1.6": "Swietna robota! Wiesz juz wszystko co musisz wiedziec, zeby grac w gre!",
-
+        "tutorial_1": "Naciśnij Spację, aby skoczyć!",
+        "tutorial_2": "Czasem trzeba biec używając SHIFT. Uważaj na kolce.",
+        "tutorial_3": "To checkpoint!",
+        "gravity_tip": "Spróbuj odwrócić grawitację. Ładuje się, gdy staniesz na ziemi.",
+        "teleporter_tip": "To przybliży cię do celu!",
+        "orb_tip": "Sfery pomagają odnowić ładunek grawitacji."
     }
 }
