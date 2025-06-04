@@ -171,25 +171,28 @@
 			"--Chapter 7: New opportunities--"
 		],
 		"story_7_1":[
-			"Upon touching the sphere, you felt a sharp surge of strength.",
-            "The world sparkled, as if you were filled with determination.",
+			"Upon touching the sphere, you felt a sharp",
+			"surge of strength. The world sparkled, as if",
+			"you were filled with determination.",
             "Perhaps this isn't the end. There's still a way out."
 		],
 		"story_8_0":[
 			"--Chapter 8: Advancement--"
 		],
 		"story_8_1":[
-			"Navigating through the spike traps, you discover that the matter",
-            "of this universe is indeed unstable. Changing gravity became routine,",
-            "and the spheres - just a convenient tool, like a harp in the hands",
-            "of a skilled musician."
+			"Navigating through the spike traps, you",
+			"discover that the matter of this universe",
+			"is indeed unstable. Changing gravity became routine,",
+            "and the spheres - just a convenient tool,",
+			"like a harp in the hands of a skilled musician."
 		],
 		"story_9_0":[
 			"--Chapter 9: Closer and closer--"
 		],
 		"story_9_1":[
-			"Something beckons you forward. A quiet, barely audible whisper.",
-            "This force pulls you, compelling you to push onward.",
+			"Something beckons you forward. A quiet,",
+			"barely audible whisper. This force pulls you,",
+			"compelling you to push onward.",
             "You feel the end of this adventure nearing.",
             "Hold on. It will all be over soon."
 		],
@@ -197,18 +200,20 @@
 			"--Chapter 10: Danger--"
 		],
 		"story_10_1":[
-			"Noise. Sudden, sharp noise. You ran towards the sound, suddenly",
-            "confronting a distorted creature, who was menacingly bearing down",
-            "on you. Scary. You don't know what this feeling is, but",
+			"Noise. Sudden, sharp noise. You ran towards",
+			"the sound, suddenly confronting a distorted creature,",
+			"who was menacingly bearing down on you.",
+			"Scary. You don't know what this feeling is, but",
             "it seems an encounter with it means nothing good."
 		],
         "story_99_0": [
 			"--True ending--"
 		],
 		"story_99_1":[
-			"You jolt awake, looking around. Light sharply hit your eyes, it was",
-            "very warm around you. Your heart was pounding wildly, still reminding you",
-            "of the encounter with the creature, the unknown lands, and the abilities.",
+			"You jolt awake, looking around. Light sharply hit",
+			"your eyes, it was very warm around you. Your heart",
+			"was pounding wildly, still reminding you of the encounter",
+			"with the creature, the unknown lands, and the abilities.",
             "You sighed, getting out of bed with effort. Reluctant."
         ],
         "story_99_2": [
