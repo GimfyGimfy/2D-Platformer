@@ -4,8 +4,10 @@ from entities.game_object import GameObject
 from constants import COLORS, GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, SPRINT_SPEED, SPRINT_ACCELERATION
 
 class Player(GameObject):
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int, y: int, level_num: int):
         super().__init__(x, y)
+
+        self.level_num = level_num
 
         base_path = os.path.join("assets", "images")
         idle = pygame.image.load(os.path.join(base_path, "idle.png")).convert_alpha()
@@ -115,7 +117,8 @@ class Player(GameObject):
     def flip_gravity(self) -> None:
         if self.charged:
             self.gravity_direction *= -1
-            self.velocity_y = 0
+            if self.level_num != 4:
+                self.velocity_y = 0
             self.charged = False
             self.just_flipped = True
 
@@ -141,7 +144,6 @@ class Player(GameObject):
 
         if self.just_flipped:
             self.image = direction_anim.get("JumpDown", direction_anim["idle"])
-            self.just_flipped = False
             return
 
         speed = abs(x_velocity)

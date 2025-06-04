@@ -231,11 +231,11 @@
 		]
     },
 	"signs": {
-        "1.1": "Use W, A, S, D to move and SPACE to jump!",
+        "1.1": "Use A and D to move and SPACE to jump!",
         "1.2": "Hold SHIFT to sprint!",
         "1.3": "Press LEFT MOUSE or L to flip the gravity!",
-        "1.4": "Collecting an orb mid-air will let you flip the gravity again!",
-        "1.5": "Careful! If you touch a spike you have to start from the last checkpoint!",
+        "1.4": "Collecting an orb mid-air will let you flip the gravity again! (Adjust the camera zoom with Z and C to see better!)",
+        "1.5": "Careful! If you touch a spike you have to start from the last checkopint!",
         "1.6": "Great job! Now you know everything you need to know to play the game!"
     }
 }

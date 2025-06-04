@@ -69,7 +69,6 @@ class GameStatePlay(GameState):
         if keys[pygame.K_d]:
             x_velocity += self.level.player.current_speed
 
-        # Przekazujemy ruch do player.update(), on obsługuje ruch i animację
         self.level.player.update(x_velocity)
 
         self._handle_horizontal_collision()
@@ -94,7 +93,6 @@ class GameStatePlay(GameState):
         for _ in range(random.randint(30, 40)):
             x = random.randint(camera_left, camera_right)
             y = player_y + random.randint(-200, 200) #vertical spread
-            
             #random horizontal offset
             offset = Vector2(
                 random.randint(-50, 50),
