@@ -1,8 +1,10 @@
 import pygame
 from entities.game_object import GameObject
-from constants import COLORS
+import os
 
 class Platform(GameObject):
     def __init__(self, x: int, y: int):
         super().__init__(x, y)
-        self.image.fill(COLORS["PLATFORM"])
+        sprite_path = os.path.join("assets", "images", "platform.png")
+        self.image = pygame.image.load(sprite_path).convert_alpha()
+        self.rect = self.image.get_rect(topleft=(x, y))
