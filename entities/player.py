@@ -3,65 +3,68 @@ import os
 from entities.game_object import GameObject
 from constants import COLORS, GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, SPRINT_SPEED, SPRINT_ACCELERATION
 
+class AnimationHandler:
+    def __init__(self, base_path: str):
+        self.animations_normal = self._load_animations(base_path)
+        self.animations_upside_down = self._create_upside_down_animations()
+        self.walk_frames = ["walk1", "idle", "walk2", "idle"]
+        self.run_frames = ["Run1", "Run2", "Run1", "Run3"]
+        self.animation_index = 0
+        self.animation_timer = 0
+
+    def _load_animations(self, base_path: str) -> dict:
+        frame_names = [
+            "idle", "walk1", "walk2", 
+            "Run1", "Run2", "Run3",
+            "JumpUp", "JumpDown", "JumpDownAlt"
+        ]
+        
+        #load right-facing frames
+        right_frames = {}
+        for name in frame_names:
+            img = pygame.image.load(os.path.join(base_path, f"{name}.png")).convert_alpha()
+            right_frames[name] = img
+        
+        #load left-facing frames
+        left_frames = {}
+        for name, img in right_frames.items():
+            left_frames[name] = pygame.transform.flip(img, True, False)
+        
+        return {
+            "right": right_frames,
+            "left": left_frames
+        }
+
+    def _create_upside_down_animations(self) -> dict:
+        upside_down = {}
+        for direction in ["right", "left"]:
+            upside_down[direction] = {
+                name: pygame.transform.flip(img, False, True)
+                for name, img in self.animations_normal[direction].items()
+            }
+        return upside_down
+
+    def get_animation_set(self, gravity_direction: int) -> dict:
+        """Get appropriate animation set based on gravity direction"""
+        return self.animations_normal if gravity_direction == 1 else self.animations_upside_down
+
+    def update_animation_state(self, is_sprinting: bool, speed: float, animation_speed: float) -> None:
+        if speed > 0.1:
+            self.animation_timer += animation_speed
+            if self.animation_timer >= 1:
+                self.animation_timer = 0
+                frames = self.run_frames if is_sprinting else self.walk_frames
+                self.animation_index = (self.animation_index + 1) % len(frames)
+        else:
+            self.animation_index = 0
+            self.animation_timer = 0
+
 class Player(GameObject):
     def __init__(self, x: int, y: int, level_num: int):
         super().__init__(x, y)
-
         self.level_num = level_num
-
-        base_path = os.path.join("assets", "images")
-        idle = pygame.image.load(os.path.join(base_path, "idle.png")).convert_alpha()
-        walk1 = pygame.image.load(os.path.join(base_path, "walk1.png")).convert_alpha()
-        walk2 = pygame.image.load(os.path.join(base_path, "walk2.png")).convert_alpha()
-
-        run1 = pygame.image.load(os.path.join(base_path, "Run1.png")).convert_alpha()
-        run2 = pygame.image.load(os.path.join(base_path, "Run2.png")).convert_alpha()
-        run3 = pygame.image.load(os.path.join(base_path, "Run3.png")).convert_alpha()
-
-        jump_up = pygame.image.load(os.path.join(base_path, "JumpUp.png")).convert_alpha()
-        jump_down = pygame.image.load(os.path.join(base_path, "JumpDown.png")).convert_alpha()
-        jump_down_alt = pygame.image.load(os.path.join(base_path, "JumpDownAlt.png")).convert_alpha()
-
-        self.animations_normal = {
-            "right": {
-                "idle": idle,
-                "walk1": walk1,
-                "walk2": walk2,
-                "run1": run1,
-                "run2": run2,
-                "run3": run3,
-                "JumpUp": jump_up,
-                "JumpDown": jump_down,
-                "JumpDownAlt": jump_down_alt
-            },
-            "left": {
-                "idle": pygame.transform.flip(idle, True, False),
-                "walk1": pygame.transform.flip(walk1, True, False),
-                "walk2": pygame.transform.flip(walk2, True, False),
-                "run1": pygame.transform.flip(run1, True, False),
-                "run2": pygame.transform.flip(run2, True, False),
-                "run3": pygame.transform.flip(run3, True, False),
-                "JumpUp": pygame.transform.flip(jump_up, True, False),
-                "JumpDown": pygame.transform.flip(jump_down, True, False),
-                "JumpDownAlt": pygame.transform.flip(jump_down_alt, True, False)
-            }
-        }
-
-        self.animations_upside_down = {
-            "right": {k: pygame.transform.flip(v, False, True) for k, v in self.animations_normal["right"].items()},
-            "left": {k: pygame.transform.flip(v, False, True) for k, v in self.animations_normal["left"].items()}
-        }
-
-        self.walk_frames = ["walk1", "idle", "walk2", "idle"]
-        self.run_frames = ["run1", "run2", "run1", "run3"]
-        self.animation_index = 0
-        self.animation_timer = 0
-        self.direction = "right"
-
-        self.image = self.animations_normal[self.direction]["idle"]
-        self.rect = self.image.get_rect(midbottom=(x + 15, y))
-
-        # Fizyczne właściwości
+        
+        #physics
         self.velocity_y = 0
         self.gravity_direction = 1
         self.on_ground = False
@@ -72,6 +75,15 @@ class Player(GameObject):
         self.just_flipped = False
         self.reset_x = x
         self.reset_y = y
+
+        #animations
+        self.animation_handler = AnimationHandler(os.path.join("assets", "images"))
+        self.direction = "right"
+        self.image = self._get_current_animation_set()["idle"]
+        self.rect = self.image.get_rect(midbottom=(x + 15, y))
+
+    def _get_current_animation_set(self) -> dict:
+        return self.animation_handler.get_animation_set(self.gravity_direction)[self.direction]
 
     def apply_physics(self, platforms: pygame.sprite.Group) -> None:
         if self.reset_cooldown > 0:
@@ -139,48 +151,37 @@ class Player(GameObject):
         self.just_flipped = False
 
     def update_animation(self, x_velocity: float) -> None:
-        animations = self.animations_normal if self.gravity_direction == 1 else self.animations_upside_down
-        direction_anim = animations[self.direction]
-
         if self.just_flipped:
-            self.image = direction_anim.get("JumpDown", direction_anim["idle"])
+            self.image = self._get_current_animation_set().get("JumpDown", self._get_current_animation_set()["idle"])
             return
-
-        speed = abs(x_velocity)
-        walk_animation_speed = 5
-        run_animation_speed = 6
 
         if not self.on_ground:
-            if self.velocity_y * self.gravity_direction < 0:
-                frame = "JumpUp"
-            else:
-                if self.charged:
-                    frame = "JumpDown"
-                else:
-                    frame = "JumpDownAlt"
-            self.image = direction_anim.get(frame, direction_anim["idle"])
-            self.animation_timer = 0
-            self.animation_index = 0
+            self._handle_jump_animation()
             return
 
-        if speed > 0.1:
-            if self.is_sprinting:
-                animation_speed = 1 / run_animation_speed
-                frames = self.run_frames
-            else:
-                animation_speed = 1 / walk_animation_speed
-                frames = self.walk_frames
+        self._handle_ground_animation(x_velocity)
 
-            self.animation_timer += animation_speed
-            if self.animation_timer >= 1:
-                self.animation_timer = 0
-                self.animation_index = (self.animation_index + 1) % len(frames)
-                frame_name = frames[self.animation_index]
-                self.image = direction_anim[frame_name]
+    def _handle_jump_animation(self):
+        if self.velocity_y * self.gravity_direction < 0:
+            frame = "JumpUp"
         else:
-            self.image = direction_anim["idle"]
-            self.animation_index = 0
-            self.animation_timer = 0
+            frame = "JumpDown" if self.charged else "JumpDownAlt"
+        self.image = self._get_current_animation_set().get(frame, self._get_current_animation_set()["idle"])
+        self.animation_handler.animation_timer = 0
+        self.animation_handler.animation_index = 0
+
+    def _handle_ground_animation(self, x_velocity: float):
+        speed = abs(x_velocity)
+        animation_speed = 1 / (6 if self.is_sprinting else 5)
+        frames = self.animation_handler.run_frames if self.is_sprinting else self.animation_handler.walk_frames
+        
+        self.animation_handler.update_animation_state(self.is_sprinting, speed, animation_speed)
+        
+        if speed > 0.1:
+            frame_name = frames[self.animation_handler.animation_index]
+            self.image = self._get_current_animation_set()[frame_name]
+        else:
+            self.image = self._get_current_animation_set()["idle"]
 
     def update(self, x_velocity: float):
         if x_velocity > 0:

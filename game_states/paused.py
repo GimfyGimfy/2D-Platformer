@@ -73,7 +73,7 @@ class GameStatePaused(GameState):
         overlay.fill(COLORS["PAUSE_OVERLAY"])
         screen.blit(overlay, (0, 0))
         
-        font_large = pygame.freetype.SysFont('Arial', 60)
+        font_large = font = pygame.freetype.Font('fonts/Silver.ttf',70)
         title_surf, title_rect = font_large.render(LANG.strings["ui"]["paused"], COLORS["WHITE"])
         title_rect.center = (CONFIG.WIDTH//2, CONFIG.HEIGHT//2 - 100)
         screen.blit(title_surf, title_rect)
