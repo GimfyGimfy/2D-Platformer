@@ -216,7 +216,7 @@ platform,37,11
 platform,36,11
 platform,44,1
 platform,40,0
-teleport,58,10,6
+teleport,58,10,12
 platform,49,1
 platform,49,5
 platform,49,6
