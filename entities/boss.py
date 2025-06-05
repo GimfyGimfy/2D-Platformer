@@ -6,11 +6,11 @@ from constants import COLORS
 class Boss(GameObject):
     def __init__(self, x: int, y: int, speed: float = 3.0):
         super().__init__(x, y)
-        self.image = pygame.Surface((120, 300))
+        self.image = pygame.Surface((120, 2000))
         self.image.fill(COLORS["RED"])
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = speed
-        self.detection_range = 500 #pixels where boss can detect player
+        self.detection_range = 1000 #pixels where boss can detect player
         self.active = False
         
     def update(self, player_rect: pygame.Rect) -> None:
