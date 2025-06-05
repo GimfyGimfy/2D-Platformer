@@ -35,48 +35,45 @@
     },
     "story": {
         "level2": [
-            "story_1_0",
+		    "story_1_0",
             "story_1_1"
         ],
         "level3": [
-            "story_2_0",
+		    "story_2_0",
             "story_2_1"
         ],
         "level4": [
-            "story_3_0",
-            "story_3_1"
+			"story_3_0",
+            "story_3_1",
+			"story_3_2"
         ],
-        "level5": [
-            "story_4_0",
+		"level5": [
+			"story_4_0",
             "story_4_1",
-            "story_4_2"
-        ],
-        "level6": [
-            "story_5_0",
-            "story_5_1",
-            "story_5_2"
-        ],
-        "level7": [
-            "story_6_0",
-            "story_6_1",
-            "story_6_2"
-        ],
-        "level8": [
-            "story_7_0",
-            "story_7_1"
-        ],
-        "level9": [
-            "story_8_0",
-            "story_8_1"
-        ],
-        "level10": [
-            "story_9_0",
-            "story_9_1"
-        ],
-        "level11": [
-            "story_10_0",
-            "story_10_1"
-        ],
+			"story_4_2"
+		],
+		"level6":[
+			"story_5_0",
+			"story_5_1",
+			"story_5_2",
+			"story_6_0",
+			"story_6_1",
+			"story_6_2"
+		],
+		"level7":[
+			"story_7_0",
+			"story_7_1",
+			"story_8_0",
+			"story_8_1"
+		],
+		"level8":[
+			"story_9_0",
+			"story_9_1"
+		],
+		"level9":[
+			"story_10_0",
+			"story_10_1"
+		],
         "ending1": [
             "story_99_0",
             "story_99_1",
